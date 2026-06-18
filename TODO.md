@@ -7,7 +7,7 @@ This document tracks granular short-term features, immediate bug fixes, and expl
 - [x] Implement the missing scripts (`update_repos_v5.py`, `generate_dashboard.py`, `prune_broken_submodules.py`).
 - [ ] Perform a test run of the recursive submodule update process across the actual ecosystem (once submodules are added).
 - [ ] Review any existing code files outside of `/docs` to identify immediate refactoring needs or missing UI components.
-- [ ] Establish initial unit testing frameworks for the core Python orchestration scripts.
+- [x] Establish initial unit testing frameworks for the core Python orchestration scripts.
 
 ## Backlog
 - [ ] Audit `bobmani` rhythm game engine suite for undocumented features.
