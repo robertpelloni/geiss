@@ -3,8 +3,9 @@
 This document tracks granular short-term features, immediate bug fixes, and explicit tasks across the Omni-Workspace.
 
 ## Immediate Tasks (Current Sprint)
-- [ ] Investigate the state of the `/scripts` directory. Check if `update_repos_v5.py`, `generate_dashboard.py`, and `prune_broken_submodules.py` actually exist or need to be implemented.
-- [ ] If scripts exist, perform a test run of the recursive submodule update process.
+- [x] Investigate the state of the `/scripts` directory. Check if `update_repos_v5.py`, `generate_dashboard.py`, and `prune_broken_submodules.py` actually exist or need to be implemented.
+- [x] Implement the missing scripts (`update_repos_v5.py`, `generate_dashboard.py`, `prune_broken_submodules.py`).
+- [ ] Perform a test run of the recursive submodule update process across the actual ecosystem (once submodules are added).
 - [ ] Review any existing code files outside of `/docs` to identify immediate refactoring needs or missing UI components.
 - [ ] Establish initial unit testing frameworks for the core Python orchestration scripts.
 

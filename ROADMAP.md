@@ -4,7 +4,8 @@ This document outlines the major, long-term structural milestones and foundation
 
 ## Phase 1: Foundation & Autonomy
 - [x] Establish core global documentation (`VISION`, `MEMORY`, `ROADMAP`, `CHANGELOG`).
-- [ ] Implement and verify the recursive submodule synchronization script (`scripts/update_repos_v5.py` or equivalent).
+- [x] Implement and verify the recursive submodule synchronization script (`scripts/update_repos_v5.py` or equivalent).
+- [x] Implement dashboard and pruning scripts (`scripts/generate_dashboard.py`, `scripts/prune_broken_submodules.py`).
 - [ ] Establish automated deployment pipelines across major core submodules (`aios`, `bobmani`).
 - [ ] Finalize standard operating procedures for agent-to-agent handoffs.
 
