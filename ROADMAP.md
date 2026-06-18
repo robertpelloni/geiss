@@ -7,7 +7,7 @@ This document outlines the major, long-term structural milestones and foundation
 - [x] Implement and verify the recursive submodule synchronization script (`scripts/update_repos_v5.py` or equivalent).
 - [x] Implement dashboard and pruning scripts (`scripts/generate_dashboard.py`, `scripts/prune_broken_submodules.py`).
 - [ ] Establish automated deployment pipelines across major core submodules (`aios`, `bobmani`).
-- [ ] Finalize standard operating procedures for agent-to-agent handoffs.
+- [x] Finalize standard operating procedures for agent-to-agent handoffs (`docs/AGENT_HANDOFF_SOP.md`).
 
 ## Phase 2: Agent Orchestration & Intelligence
 - [ ] Develop the centralized task router to assign specific repos/issues to specialized models (Claude/Gemini/GPT).

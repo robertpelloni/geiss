@@ -5,6 +5,12 @@ All notable changes to the Omni-Workspace ecosystem will be documented in this f
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres strictly to the versioning defined in the global `VERSION.md` file.
 
+## [1.0.2] - Git Hooks & SOP Implementation
+### Added
+- Created `scripts/install_hooks.py` to enforce explicit versioning in git commits via a `commit-msg` hook.
+- Formalized `docs/AGENT_HANDOFF_SOP.md` to ensure autonomous agents maintain context during handoffs.
+- Updated `HANDOFF.md`, `ROADMAP.md`, and `TODO.md` to map out the next phase.
+
 ## [1.0.1] - Add Testing Framework
 ### Added
 - Created `tests/` directory and implemented initial Python unit tests for orchestration scripts.
