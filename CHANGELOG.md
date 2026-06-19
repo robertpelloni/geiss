@@ -5,6 +5,11 @@ All notable changes to the Omni-Workspace ecosystem will be documented in this f
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres strictly to the versioning defined in the global `VERSION.md` file.
 
+## [1.0.12] - Implement Codebase Patterns
+### Added
+- Executed `scripts/telemetry_standardizer.py` across `aios` and `borg` submodules, injecting universal `[OMNI]` log tracing.
+- Executed `scripts/ui_scaffold_generator.py` across `aios` and `borg` submodules, generating initial React `.jsx` stubs for backend features lacking UI representation.
+
 ## [1.0.11] - Synchronize Universal Instructions
 ### Changed
 - Updated `docs/UNIVERSAL_LLM_INSTRUCTIONS.md` to formally document and mandate the usage of the new Phase 1-4 orchestration scripts (`drift_detection_daemon.py`, `ui_auditor.py`, `system_test_runner.py`, etc.) ensuring future AI agents understand the complete toolset available.
