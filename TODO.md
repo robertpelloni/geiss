@@ -13,5 +13,6 @@ This document tracks granular short-term features, immediate bug fixes, and expl
 ## Backlog
 - [ ] Audit `bobmani` rhythm game engine suite for undocumented features.
 - [ ] Audit `aios` and `borg` projects to map out their current interaction boundaries.
-- [ ] Implement a system to auto-generate `SUBMODULE_DASHBOARD.md`.
-- [ ] Verify that Git hooks are correctly configured to prevent commits without version increments.
+- [x] Implement a system to auto-generate `SUBMODULE_DASHBOARD.md`.
+- [x] Verify that Git hooks are correctly configured to prevent commits without version increments.
+- [ ] Develop logic for the automated conflict-resolution handlers.

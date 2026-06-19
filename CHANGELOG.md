@@ -5,6 +5,12 @@ All notable changes to the Omni-Workspace ecosystem will be documented in this f
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres strictly to the versioning defined in the global `VERSION.md` file.
 
+## [1.0.4] - Phase 2 Orchestration Scripts
+### Added
+- Created `scripts/drift_detection_daemon.py` to identify if submodules are out of sync with upstream.
+- Created `scripts/task_router.py` as a foundational framework for assigning AI models to tasks based on capabilities.
+- Added corresponding unit tests in `tests/`.
+
 ## [1.0.3] - Conclude Initialization Phase
 ### Added
 - Concluded the "Initialization & Context Restoration" phase.

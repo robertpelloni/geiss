@@ -10,8 +10,8 @@ This document outlines the major, long-term structural milestones and foundation
 - [x] Finalize standard operating procedures for agent-to-agent handoffs (`docs/AGENT_HANDOFF_SOP.md`).
 
 ## Phase 2: Agent Orchestration & Intelligence
-- [ ] Develop the centralized task router to assign specific repos/issues to specialized models (Claude/Gemini/GPT).
-- [ ] Implement a global "drift detection" daemon to identify submodules falling behind upstream forks.
+- [x] Develop the centralized task router to assign specific repos/issues to specialized models (Claude/Gemini/GPT) (`scripts/task_router.py`).
+- [x] Implement a global "drift detection" daemon to identify submodules falling behind upstream forks (`scripts/drift_detection_daemon.py`).
 - [ ] Build automated conflict-resolution handlers that prioritize feature preservation.
 
 ## Phase 3: Ecosystem Unification
