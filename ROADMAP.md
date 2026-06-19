@@ -12,7 +12,7 @@ This document outlines the major, long-term structural milestones and foundation
 ## Phase 2: Agent Orchestration & Intelligence
 - [x] Develop the centralized task router to assign specific repos/issues to specialized models (Claude/Gemini/GPT) (`scripts/task_router.py`).
 - [x] Implement a global "drift detection" daemon to identify submodules falling behind upstream forks (`scripts/drift_detection_daemon.py`).
-- [ ] Build automated conflict-resolution handlers that prioritize feature preservation.
+- [x] Build automated conflict-resolution handlers that prioritize feature preservation (`scripts/conflict_resolution.py`).
 
 ## Phase 3: Ecosystem Unification
 - [ ] Fully wire all discovered backend features in legacy projects to robust UI components.

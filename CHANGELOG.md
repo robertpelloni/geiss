@@ -5,6 +5,12 @@ All notable changes to the Omni-Workspace ecosystem will be documented in this f
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres strictly to the versioning defined in the global `VERSION.md` file.
 
+## [1.0.6] - Conflict Resolution & UI Auditing
+### Added
+- Created `scripts/conflict_resolution.py` to establish a foundation for automated, feature-preserving git conflict resolutions.
+- Created `scripts/ui_auditor.py` to recursively scan submodules and flag missing frontend logic.
+- Implemented unit tests for the new scripts.
+
 ## [1.0.5] - Inject Core Submodules
 ### Added
 - Simulated remote repositories to bootstrap the Omni-Workspace.

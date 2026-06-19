@@ -7,7 +7,7 @@ This document tracks granular short-term features, immediate bug fixes, and expl
 - [x] Implement the missing scripts (`update_repos_v5.py`, `generate_dashboard.py`, `prune_broken_submodules.py`).
 - [x] Perform a test run of the recursive submodule update process across the actual ecosystem (once submodules are added).
 - [x] Review any existing code files outside of `/docs` to identify immediate refactoring needs or missing UI components. (N/A - Repo is empty of application code).
-- [ ] Audit newly injected submodules for missing UI components.
+- [x] Audit newly injected submodules for missing UI components.
 - [x] Implement Git commit hook to enforce version referencing.
 - [x] Establish initial unit testing frameworks for the core Python orchestration scripts.
 
@@ -16,4 +16,4 @@ This document tracks granular short-term features, immediate bug fixes, and expl
 - [ ] Audit `aios` and `borg` projects to map out their current interaction boundaries.
 - [x] Implement a system to auto-generate `SUBMODULE_DASHBOARD.md`.
 - [x] Verify that Git hooks are correctly configured to prevent commits without version increments.
-- [ ] Develop logic for the automated conflict-resolution handlers.
+- [x] Develop logic for the automated conflict-resolution handlers.
