@@ -11,6 +11,7 @@ This document tracks granular short-term features, immediate bug fixes, and expl
 - [x] Implement Git commit hook to enforce version referencing.
 - [x] Establish initial unit testing frameworks for the core Python orchestration scripts.
 - [x] Establish deployment pipeline skeleton.
+- [x] Create script to auto-generate UI scaffolding.
 
 ## Backlog
 - [ ] Audit `bobmani` rhythm game engine suite for undocumented features.
