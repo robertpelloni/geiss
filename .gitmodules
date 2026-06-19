@@ -1,0 +1,12 @@
+[submodule "aios"]
+	path = aios
+	url = /tmp/remotes/aios.git
+[submodule "bobmani"]
+	path = bobmani
+	url = /tmp/remotes/bobmani.git
+[submodule "fwber"]
+	path = fwber
+	url = /tmp/remotes/fwber.git
+[submodule "borg"]
+	path = borg
+	url = /tmp/remotes/borg.git

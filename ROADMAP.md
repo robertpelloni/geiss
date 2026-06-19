@@ -6,7 +6,7 @@ This document outlines the major, long-term structural milestones and foundation
 - [x] Establish core global documentation (`VISION`, `MEMORY`, `ROADMAP`, `CHANGELOG`).
 - [x] Implement and verify the recursive submodule synchronization script (`scripts/update_repos_v5.py` or equivalent).
 - [x] Implement dashboard and pruning scripts (`scripts/generate_dashboard.py`, `scripts/prune_broken_submodules.py`).
-- [ ] Establish automated deployment pipelines across major core submodules (`aios`, `bobmani`).
+- [ ] Establish automated deployment pipelines across major core submodules (`aios`, `bobmani`). (Blocked until deeper analysis of injected submodules).
 - [x] Finalize standard operating procedures for agent-to-agent handoffs (`docs/AGENT_HANDOFF_SOP.md`).
 
 ## Phase 2: Agent Orchestration & Intelligence

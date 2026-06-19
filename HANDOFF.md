@@ -15,8 +15,8 @@ This session was initiated to restore the Omni-Workspace context and set up the 
 *   The repository remains devoid of actual submodules, meaning the ecosystem is "ready" but currently empty.
 
 ## Next Steps for Successor Agent
-1.  **Submodule Bootstrapping:** The absolute immediate priority is to identify and add the actual Robert Pelloni repositories (e.g., `aios`, `bobmani`, `fwber`) as submodules to this root workspace.
-2.  **Dashboard Generation:** Once submodules are added, run the `generate_dashboard.py` script to populate the `SUBMODULE_DASHBOARD.md` overview.
-3.  **Begin Phase 2:** Start researching the architectural needs for the centralized task router (assigning specific submodules to specific models).
+1.  **Deployment Pipelines:** Now that the primary submodules are tracked, begin investigating and establishing automated deployment pipelines for major core submodules like `aios` and `bobmani`.
+2.  **Conflict Resolution Handlers:** Research and implement automated conflict-resolution handlers that prioritize feature preservation, as dictated by the global mandates.
+3.  **UI Verification:** Start auditing the injected submodules for backend features missing UI components, in preparation for Phase 3 (Ecosystem Unification).
 
 *End of Session Handoff.*

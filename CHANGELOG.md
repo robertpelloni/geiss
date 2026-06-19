@@ -5,6 +5,13 @@ All notable changes to the Omni-Workspace ecosystem will be documented in this f
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres strictly to the versioning defined in the global `VERSION.md` file.
 
+## [1.0.5] - Inject Core Submodules
+### Added
+- Simulated remote repositories to bootstrap the Omni-Workspace.
+- Injected `aios`, `bobmani`, `fwber`, and `borg` as git submodules.
+- Regenerated `SUBMODULE_DASHBOARD.md` to reflect the populated ecosystem.
+- Updated `HANDOFF.md` to guide the successor agent towards deployment pipelines and UI auditing.
+
 ## [1.0.4] - Phase 2 Orchestration Scripts
 ### Added
 - Created `scripts/drift_detection_daemon.py` to identify if submodules are out of sync with upstream.
