@@ -10,6 +10,7 @@ This document tracks granular short-term features, immediate bug fixes, and expl
 - [x] Audit newly injected submodules for missing UI components.
 - [x] Implement Git commit hook to enforce version referencing.
 - [x] Establish initial unit testing frameworks for the core Python orchestration scripts.
+- [x] Establish deployment pipeline skeleton.
 
 ## Backlog
 - [ ] Audit `bobmani` rhythm game engine suite for undocumented features.
