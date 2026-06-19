@@ -12,6 +12,7 @@ This document tracks granular short-term features, immediate bug fixes, and expl
 - [x] Establish initial unit testing frameworks for the core Python orchestration scripts.
 - [x] Establish deployment pipeline skeleton.
 - [x] Create script to auto-generate UI scaffolding.
+- [x] Perform end-to-end system automation testing.
 
 ## Backlog
 - [ ] Audit `bobmani` rhythm game engine suite for undocumented features.

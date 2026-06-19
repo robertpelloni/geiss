@@ -5,6 +5,11 @@ All notable changes to the Omni-Workspace ecosystem will be documented in this f
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres strictly to the versioning defined in the global `VERSION.md` file.
 
+## [1.0.10] - Phase 4 System Automation Testing
+### Added
+- Created `scripts/system_test_runner.py` to sequentially execute and validate the core autonomous orchestration scripts.
+- Verified end-to-end functionality of Phase 1-3 infrastructure across simulated submodules.
+
 ## [1.0.9] - Telemetry Standardizer
 ### Added
 - Created `scripts/telemetry_standardizer.py` to recursively parse backend files and inject standardized logging logic across the Omni-Workspace.
