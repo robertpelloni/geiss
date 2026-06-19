@@ -5,6 +5,11 @@ All notable changes to the Omni-Workspace ecosystem will be documented in this f
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres strictly to the versioning defined in the global `VERSION.md` file.
 
+## [1.0.3] - Conclude Initialization Phase
+### Added
+- Concluded the "Initialization & Context Restoration" phase.
+- Synced with upstream and prepared `HANDOFF.md` for Phase 2 (Submodule Injection).
+
 ## [1.0.2] - Git Hooks & SOP Implementation
 ### Added
 - Created `scripts/install_hooks.py` to enforce explicit versioning in git commits via a `commit-msg` hook.
