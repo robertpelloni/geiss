@@ -5,6 +5,11 @@ All notable changes to the Omni-Workspace ecosystem will be documented in this f
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres strictly to the versioning defined in the global `VERSION.md` file.
 
+## [1.0.9] - Telemetry Standardizer
+### Added
+- Created `scripts/telemetry_standardizer.py` to recursively parse backend files and inject standardized logging logic across the Omni-Workspace.
+- Added corresponding unit tests in `tests/test_telemetry_standardizer.py`.
+
 ## [1.0.8] - UI Scaffold Generator
 ### Added
 - Created `scripts/ui_scaffold_generator.py` to auto-generate React components for backend features, addressing the Ecosystem Unification phase goals.
