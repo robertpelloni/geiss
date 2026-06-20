@@ -5,6 +5,13 @@ All notable changes to the Omni-Workspace ecosystem will be documented in this f
 The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres strictly to the versioning defined in the global `VERSION.md` file.
 
+
+## [1.0.14] - 2026-06-20
+### Added
+- Implemented `scripts/global_search_and_replace.py` to facilitate global refactoring across all submodules.
+- Added unit tests for the global search utility in `tests/test_global_search.py`.
+### Changed
+- Updated ROADMAP.md to mark "global search and refactoring capabilities" as complete.
 ## [1.0.13] - Archival State
 ### Changed
 - Finalized Omni-Workspace initialization. Verified full end-to-end functionality via system testing and updated `HANDOFF.md` for live environment transition.

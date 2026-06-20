@@ -1,12 +1,12 @@
 [submodule "aios"]
 	path = aios
-	url = /tmp/remotes/aios.git
+	url = https://github.com/robertpelloni/aios.git
 [submodule "bobmani"]
 	path = bobmani
-	url = /tmp/remotes/bobmani.git
+	url = https://github.com/robertpelloni/bobmani.git
 [submodule "fwber"]
 	path = fwber
-	url = /tmp/remotes/fwber.git
+	url = https://github.com/robertpelloni/fwber.git
 [submodule "borg"]
 	path = borg
-	url = /tmp/remotes/borg.git
+	url = https://github.com/robertpelloni/borg.git
