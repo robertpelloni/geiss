@@ -6,6 +6,13 @@ The format is loosely based on [Keep a Changelog](https://keepachangelog.com/en/
 and this project adheres strictly to the versioning defined in the global `VERSION.md` file.
 
 
+
+## [1.0.15] - 2026-06-21
+### Added
+- Phase 4 Automation: Upgraded `scripts/deployment_pipeline.py` with GitHub Actions `.yml` generation capability for submodules.
+- Generated initial CI/CD workflows for `aios`, `bobmani`, and `borg` located in `.github/workflows/`.
+### Changed
+- Transitioned towards actual live environment operations for CI/CD.
 ## [1.0.14] - 2026-06-20
 ### Added
 - Implemented `scripts/global_search_and_replace.py` to facilitate global refactoring across all submodules.
