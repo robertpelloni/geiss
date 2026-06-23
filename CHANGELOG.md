@@ -7,6 +7,11 @@ and this project adheres strictly to the versioning defined in the global `VERSI
 
 
 
+
+## [1.0.16] - 2026-06-23
+### Added
+- Phase 4 Automation: Audited `bobmani` submodule.
+- Added `bobmani/AUDIT.md` mapping findings.
 ## [1.0.15] - 2026-06-21
 ### Added
 - Phase 4 Automation: Upgraded `scripts/deployment_pipeline.py` with GitHub Actions `.yml` generation capability for submodules.
