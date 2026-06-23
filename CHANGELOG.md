@@ -8,6 +8,11 @@ and this project adheres strictly to the versioning defined in the global `VERSI
 
 
 
+
+## [1.0.17] - 2026-06-23
+### Added
+- Phase 4 Automation: Audited `aios` and `borg` submodules.
+- Created `docs/INTERACTIONS.md` mapping the architecture boundaries between the AI OS and the meta-orchestrator.
 ## [1.0.16] - 2026-06-23
 ### Added
 - Phase 4 Automation: Audited `bobmani` submodule.
