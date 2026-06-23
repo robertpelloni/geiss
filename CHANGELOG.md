@@ -9,6 +9,12 @@ and this project adheres strictly to the versioning defined in the global `VERSI
 
 
 
+
+## [1.0.18] - 2026-06-23
+### Added
+- Implemented `backend-go` architecture as the Jules Autopilot root application.
+- Added `/api/shadow/diff` endpoint and background daemon to monitor for Git diff anomalies (Shadow Pilot).
+- Added `/system/status` endpoint to track real-time Submodule synchronization states.
 ## [1.0.17] - 2026-06-23
 ### Added
 - Phase 4 Automation: Audited `aios` and `borg` submodules.
