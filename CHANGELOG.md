@@ -10,6 +10,13 @@ and this project adheres strictly to the versioning defined in the global `VERSI
 
 
 
+
+## [1.0.19] - 2026-06-23
+### Added
+- Initialized Vite + React 19 Frontend SPA skeleton in the root directory.
+- Created `pnpm-workspace.yaml` and updated `package.json` to handle workspace layout.
+- Added `src/App.jsx` dashboard to interface with the Go backend API (`/api/shadow/diff` and `/system/status`).
+- Configured `vite.config.js` proxy for local development against the Go `:8080` port.
 ## [1.0.18] - 2026-06-23
 ### Added
 - Implemented `backend-go` architecture as the Jules Autopilot root application.
