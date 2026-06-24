@@ -3,54 +3,59 @@ package main
 import (
 	"fmt"
 	"log"
+	"sync"
 	"time"
 )
 
 type Task struct {
-	ID        string `gorm:"primaryKey"`
+	ID        string
 	Name      string
 	Status    string
 	CreatedAt time.Time
 }
 
+type TaskQueue struct {
+	mu    sync.Mutex
+	Tasks []Task
+}
+
+var queue = &TaskQueue{
+	Tasks: make([]Task, 0),
+}
+
 func AddTask(name string) {
+	queue.mu.Lock()
+	defer queue.mu.Unlock()
+
 	task := Task{
 		ID:        fmt.Sprintf("task-%d", time.Now().UnixNano()),
 		Name:      name,
 		Status:    "PENDING",
 		CreatedAt: time.Now(),
 	}
-
-	result := db.Create(&task)
-	if result.Error != nil {
-		log.Printf("[QUEUE] Error adding task: %v", result.Error)
-		return
-	}
-	log.Printf("[QUEUE] Task added to DB: %s", task.Name)
+	queue.Tasks = append(queue.Tasks, task)
+	log.Printf("[QUEUE] Task added: %s", task.Name)
 }
 
 func ProcessTasks() {
 	for {
-		var task Task
-		// Find first pending task
-		result := db.Where("status = ?", "PENDING").First(&task)
-
-		if result.Error == nil {
-			log.Printf("[QUEUE] Processing task: %s", task.Name)
-			db.Model(&task).Update("Status", "COMPLETED")
+		queue.mu.Lock()
+		if len(queue.Tasks) > 0 {
+			for i, t := range queue.Tasks {
+				if t.Status == "PENDING" {
+					log.Printf("[QUEUE] Processing task: %s", t.Name)
+					queue.Tasks[i].Status = "COMPLETED"
+					break
+				}
+			}
 		}
+		queue.mu.Unlock()
 		time.Sleep(5 * time.Second)
 	}
 }
 
 func StartQueueWorker() {
-	initDB() // Init DB before queue worker starts
 	go ProcessTasks()
-
-	var count int64
-	db.Model(&Task{}).Count(&count)
-	if count == 0 {
-		AddTask("Initial System Sync")
-		AddTask("Vectorize Session Data")
-	}
+	AddTask("Initial System Sync")
+	AddTask("Vectorize Session Data")
 }

@@ -6,9 +6,9 @@ import (
 )
 
 func queueTelemetryHandler(w http.ResponseWriter, r *http.Request) {
-	var tasks []Task
-	db.Order("created_at desc").Limit(50).Find(&tasks)
+	queue.mu.Lock()
+	defer queue.mu.Unlock()
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(tasks)
+	json.NewEncoder(w).Encode(queue.Tasks)
 }
