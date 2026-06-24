@@ -11,9 +11,11 @@ func main() {
 	http.HandleFunc("/api/shadow/diff", shadowPilotHandler)
 	http.HandleFunc("/system/status", submoduleStatusHandler)
 	http.HandleFunc("/api/shadow/autofix", ciAutoFixHandler)
+	http.HandleFunc("/api/queue/telemetry", queueTelemetryHandler)
 
 	// Start background daemons
 	startShadowDaemon()
+	StartQueueWorker()
 
 	// Serve the static SPA build
 	fs := http.FileServer(http.Dir("../dist"))

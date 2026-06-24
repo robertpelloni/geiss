@@ -11,6 +11,19 @@ and this project adheres strictly to the versioning defined in the global `VERSI
 
 
 
+
+
+## [1.0.21] - 2026-06-24
+### Added
+- Implemented GORM + SQLite database integration for native Go task persistence.
+- Added `requirements.txt` to properly resolve `PyYAML` for the Python deployment pipelines.
+### Fixed
+- Fixed Vite Frontend UI setup by correctly integrating and configuring `@tailwindcss/vite` plugin.
+## [1.0.20] - 2026-06-24
+### Added
+- Implemented native Go `TaskQueue` and worker routines in `backend-go/queue.go` for background telemetry orchestration.
+- Added `/api/queue/telemetry` endpoint to expose task status.
+- Updated the Vite React SPA (`src/App.jsx`) to consume and display real-time queue telemetry via polling.
 ## [1.0.19] - 2026-06-23
 ### Added
 - Initialized Vite + React 19 Frontend SPA skeleton in the root directory.
