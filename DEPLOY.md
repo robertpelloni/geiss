@@ -1,45 +1,53 @@
 # Deployment & Environment Setup
 
 ## Overview
-This document outlines the procedures for setting up the Omni-Workspace environment and deploying the various sub-projects it manages. Given the complexity of the ecosystem (100+ nested repositories), strict adherence to these steps is required.
+This document outlines the procedures for setting up the Jules Autopilot Omni-Workspace environment. Given the pivot to a Go-first architecture with a React SPA frontend, strict adherence to these steps is required.
 
 ## Prerequisites
 *   Git (latest version)
-*   Python 3.x (for orchestration scripts)
-*   *Note: Individual submodules may have their own language/framework dependencies (Node.js, C++, Rust, etc.). Refer to their respective `DEPLOY.md` or `README.md` files.*
+*   Go v1.26.0
+*   Node.js v20.20.2
+*   pnpm
 
-## Initial Setup & Synchronization
-1.  **Clone the Root Repository:**
+## Local Development Setup
+1.  **Clone the Repository:**
     ```bash
-    git clone <repository_url> omni-workspace
-    cd omni-workspace
+    git clone <repository_url> jules-autopilot
+    cd jules-autopilot
     ```
-2.  **Initialize and Update Submodules (Crucial):**
-    The standard `git submodule update --init --recursive` might be insufficient for this complex setup.
-    You MUST run the designated Python synchronization script:
+2.  **Frontend Setup:**
+    Ensure `ignore-scripts=false` is set in your local `.npmrc` file.
     ```bash
-    python scripts/update_repos_v5.py
+    pnpm install
+    pnpm run dev
     ```
-    *This script recursively syncs all submodules, handles nested structures, and ensures no submodule is left in a detached HEAD state.*
-3.  **Sanitize Git State:**
-    Before any major operations, ensure the local repo is in sync with the server:
-    *   Fetch and pull the root repo.
-    *   Sync upstream parent forks.
-    *   Resolve any conflicts intelligently.
-    *   Ensure all personal feature branches are updated with `main`.
-
-## Maintenance & Pruning
-*   **Clean Submodules:** To maintain the integrity of `.gitmodules` and remove broken links, run:
+3.  **Backend Setup:**
     ```bash
-    python scripts/prune_broken_submodules.py
+    cd backend-go
+    go run main.go
     ```
 
-## Dashboard Generation
-*   **Update Views:** To regenerate the global status views, run:
+## Production Build & Run
+1.  **Build Frontend:**
     ```bash
-    python scripts/generate_dashboard.py
+    pnpm run build
     ```
-    This updates `SUBMODULE_DASHBOARD.md` and related structural documents.
+    *This generates the static assets in the `dist/` directory.*
+2.  **Build and Run Backend:**
+    ```bash
+    cd backend-go
+    go build -o jules-backend
+    ./jules-backend
+    ```
+    *The Go backend serves the API on port 8080 and statically hosts the `../dist` frontend build.*
 
-## Deployment Processes
-*(Specific deployment pipelines for `aios`, `bobmani`, `fwber`, etc., should be documented here as they are developed or imported from their respective repositories. Currently, rely on the automated synchronization scripts as the primary "deployment" mechanism for the workspace structure.)*
+## Render Deployment Specifications
+When deploying to Render, the following environment variables are required:
+*   `NODE_VERSION=20.20.2`
+*   `GO_VERSION=1.26.0`
+*   `CGO_ENABLED=1`
+*   `NODE_OPTIONS=--max-old-space-size=4096` (Prevents Vite OOM errors during build)
+*   `JULES_API_KEY`
+
+## Legacy Python Orchestration Scripts
+Some orchestration scripts in `/scripts` still rely on Python. Ensure Python 3.x is installed to run scripts like `update_repos_v5.py` for submodule syncing.

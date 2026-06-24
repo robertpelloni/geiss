@@ -128,3 +128,11 @@ and this project adheres strictly to the versioning defined in the global `VERSI
 - Fixed React App syntax errors with merging `src/App.jsx`.
 - Solved node module dependency build errors and performed `npm run build` on the application, successfully outputting `/dist`.
 - Merged branches in Step 2, updated `VERSION.md`.
+
+## [1.0.23] - Implementation & Document Quality Updates
+- Extracted and populated detailed milestones into `ROADMAP.md` mapping out the new Go-first migration.
+- Extracted pending short-term features into `TODO.md`.
+- Formally updated `DEPLOY.md` to reflect the local and production requirements for the Go backend and React frontend.
+- Added aggressive future pivots and expansion ideas to `IDEAS.md`.
+- Comprehensively wired the backend Shadow Pilot feature into the UI with an interactive "Auto-Fix" trigger button.
+- Overhauled the UI quality of the dashboard, implementing detailed tooltips, context descriptions, and interactive labels across all three core modules (Submodule Status, Shadow Pilot, Queue Telemetry).

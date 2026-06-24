@@ -22,3 +22,9 @@ This document outlines the major, long-term structural milestones and foundation
 ## Phase 4: Full Automation
 - [x] Achieve a state where the Omni-Workspace self-heals broken builds without human intervention (Validated via `system_test_runner.py`).
 - [x] Agents proactively design, implement, test, and document new features based solely on high-level directives.
+
+## Phase 5: Go-First Refactoring & Consolidation
+- [ ] Transition remaining node/python orchestration scripts and task routers natively into the Go backend.
+- [ ] Migrate `jules.db` to a robust production database like PostgreSQL instead of SQLite.
+- [ ] Implement robust user authentication and role-based access for the Omni-Workspace UI.
+- [ ] Add real-time log streaming from submodules into the React frontend.
