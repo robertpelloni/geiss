@@ -136,3 +136,9 @@ and this project adheres strictly to the versioning defined in the global `VERSI
 - Added aggressive future pivots and expansion ideas to `IDEAS.md`.
 - Comprehensively wired the backend Shadow Pilot feature into the UI with an interactive "Auto-Fix" trigger button.
 - Overhauled the UI quality of the dashboard, implementing detailed tooltips, context descriptions, and interactive labels across all three core modules (Submodule Status, Shadow Pilot, Queue Telemetry).
+
+## [1.0.24] - Go API Expansion & Testing
+- Migrated `scripts/task_router.py` to `backend-go/task_router.go`.
+- Added native Go `taskRouterHandler` to the Fiber-equivalent `net/http` router.
+- Authored robust unit tests in `backend-go/main_test.go` covering `CIAutoFixHandler`, `TaskRouterHandler`, and `QueueTelemetryHandler`.
+- Deleted legacy python script `task_router.py`.

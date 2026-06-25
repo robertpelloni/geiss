@@ -12,6 +12,7 @@ func main() {
 	http.HandleFunc("/system/status", submoduleStatusHandler)
 	http.HandleFunc("/api/shadow/autofix", ciAutoFixHandler)
 	http.HandleFunc("/api/queue/telemetry", queueTelemetryHandler)
+	http.HandleFunc("/api/tasks/route", taskRouterHandler)
 
 	// Start background daemons
 	startShadowDaemon()
