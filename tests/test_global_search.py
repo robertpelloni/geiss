@@ -7,14 +7,22 @@ from scripts.global_search_and_replace import process_file, search_and_replace_i
 class TestGlobalSearchAndReplace(unittest.TestCase):
     def setUp(self):
         self.test_dir = tempfile.mkdtemp()
+<<<<<<< HEAD
 
     def tearDown(self):
         shutil.rmtree(self.test_dir)
 
+=======
+
+    def tearDown(self):
+        shutil.rmtree(self.test_dir)
+
+>>>>>>> jules-9396211896448288708-4318ead9
     def test_process_file(self):
         test_file = os.path.join(self.test_dir, "test.txt")
         with open(test_file, 'w') as f:
             f.write("This is a old_string test.")
+<<<<<<< HEAD
 
         result = process_file(test_file, "old_string", "new_string")
         self.assertTrue(result)
@@ -23,21 +31,43 @@ class TestGlobalSearchAndReplace(unittest.TestCase):
             content = f.read()
             self.assertEqual(content, "This is a new_string test.")
 
+=======
+
+        result = process_file(test_file, "old_string", "new_string")
+        self.assertTrue(result)
+
+        with open(test_file, 'r') as f:
+            content = f.read()
+            self.assertEqual(content, "This is a new_string test.")
+
+>>>>>>> jules-9396211896448288708-4318ead9
     def test_search_and_replace_in_dir(self):
         # Create a nested directory structure
         os.makedirs(os.path.join(self.test_dir, "subdir"))
         file1 = os.path.join(self.test_dir, "file1.txt")
         file2 = os.path.join(self.test_dir, "subdir", "file2.txt")
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> jules-9396211896448288708-4318ead9
         with open(file1, 'w') as f:
             f.write("Find me here.")
         with open(file2, 'w') as f:
             f.write("Find me here too.")
+<<<<<<< HEAD
 
         modifications = search_and_replace_in_dir(self.test_dir, "Find me", "Found you")
 
         self.assertEqual(modifications, 2)
 
+=======
+
+        modifications = search_and_replace_in_dir(self.test_dir, "Find me", "Found you")
+
+        self.assertEqual(modifications, 2)
+
+>>>>>>> jules-9396211896448288708-4318ead9
         with open(file1, 'r') as f:
             self.assertEqual(f.read(), "Found you here.")
         with open(file2, 'r') as f:

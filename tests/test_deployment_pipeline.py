@@ -24,7 +24,11 @@ class TestDeploymentPipeline(unittest.TestCase):
         mock_build.return_value = True
         mock_test.return_value = True
         mock_deploy.return_value = True
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> jules-9396211896448288708-4318ead9
         success, msg = deployment_pipeline.run_pipeline("valid_path")
         self.assertTrue(success)
         self.assertTrue("successfully" in msg)
@@ -34,7 +38,11 @@ class TestDeploymentPipeline(unittest.TestCase):
     def test_run_pipeline_build_fail(self, mock_build, mock_exists):
         mock_exists.return_value = True
         mock_build.return_value = False
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> jules-9396211896448288708-4318ead9
         success, msg = deployment_pipeline.run_pipeline("valid_path")
         self.assertFalse(success)
         self.assertEqual(msg, "Build stage failed.")

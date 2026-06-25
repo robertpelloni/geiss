@@ -1,5 +1,18 @@
+<<<<<<< HEAD
+<<<<<<< Updated upstream
+=======
+>>>>>>> jules-9396211896448288708-4318ead9
 __pycache__/
 *.py[cod]
 *$py.class
 backend-go/jules-backend
 node_modules/
+<<<<<<< HEAD
+=======
+node_modules/
+tests/__pycache__/
+__pycache__/
+jules-backend
+>>>>>>> Stashed changes
+=======
+>>>>>>> jules-9396211896448288708-4318ead9

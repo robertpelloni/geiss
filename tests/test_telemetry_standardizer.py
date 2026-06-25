@@ -13,10 +13,17 @@ class TestTelemetryStandardizer(unittest.TestCase):
         self.test_dir = tempfile.mkdtemp()
         self.py_file = os.path.join(self.test_dir, "test.py")
         self.js_file = os.path.join(self.test_dir, "test.js")
+<<<<<<< HEAD
 
         with open(self.py_file, 'w') as f:
             f.write("def my_func(): pass\n")
 
+=======
+
+        with open(self.py_file, 'w') as f:
+            f.write("def my_func(): pass\n")
+
+>>>>>>> jules-9396211896448288708-4318ead9
         with open(self.js_file, 'w') as f:
             f.write("function myFunc() {}\n")
 
@@ -32,7 +39,11 @@ class TestTelemetryStandardizer(unittest.TestCase):
     def test_standardize_python_file(self):
         success, msg = telemetry_standardizer.standardize_file(self.py_file)
         self.assertTrue(success)
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> jules-9396211896448288708-4318ead9
         with open(self.py_file, 'r') as f:
             content = f.read()
             self.assertTrue("[OMNI]" in content)
@@ -42,7 +53,11 @@ class TestTelemetryStandardizer(unittest.TestCase):
     def test_standardize_nodejs_file(self):
         success, msg = telemetry_standardizer.standardize_file(self.js_file)
         self.assertTrue(success)
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> jules-9396211896448288708-4318ead9
         with open(self.js_file, 'r') as f:
             content = f.read()
             self.assertTrue("[OMNI]" in content)
@@ -54,7 +69,11 @@ class TestTelemetryStandardizer(unittest.TestCase):
         telemetry_standardizer.standardize_file(self.py_file)
         # Attempt second injection
         success, msg = telemetry_standardizer.standardize_file(self.py_file)
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> jules-9396211896448288708-4318ead9
         self.assertFalse(success)
         self.assertEqual(msg, "Telemetry already present")
 

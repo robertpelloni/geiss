@@ -72,7 +72,11 @@ def analyze_conflict(conflict_block):
          return "Accept Remote (Local is empty)"
     if local_content.strip() and not remote_content.strip():
          return "Accept Local (Remote is empty)"
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> jules-9396211896448288708-4318ead9
     # If both have content, we defer to intelligent merging (LLM/Manual)
     return "Requires Intelligent Merge (Both contain features)"
 
@@ -93,11 +97,19 @@ def main():
         print(f"\n--- Conflicted File: {file} ---")
         full_path = os.path.join(repo_path, file)
         blocks = extract_conflict_blocks(full_path)
+<<<<<<< HEAD
 
         for i, block in enumerate(blocks):
             strategy = analyze_conflict(block)
             print(f"  Conflict Block #{i+1}: {strategy}")
 
+=======
+
+        for i, block in enumerate(blocks):
+            strategy = analyze_conflict(block)
+            print(f"  Conflict Block #{i+1}: {strategy}")
+
+>>>>>>> jules-9396211896448288708-4318ead9
     print("\nWARNING: Automated resolution is in Skeleton phase. Manual LLM intervention required for Intelligent Merges.")
 
 if __name__ == "__main__":

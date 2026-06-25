@@ -21,7 +21,11 @@ def get_submodules():
     output = run_cmd(["git", "config", "--file", ".gitmodules", "--get-regexp", "path"], check=False)
     if not output:
         return []
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> jules-9396211896448288708-4318ead9
     paths = []
     for line in output.splitlines():
         parts = line.split(" ", 1)
@@ -53,7 +57,11 @@ def check_drift(sm_path):
 
     if local_hash != remote_hash:
         return f"{sm_path}: DRIFT DETECTED (Local: {local_hash[:7]} != Remote: {remote_hash[:7]})"
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> jules-9396211896448288708-4318ead9
     return f"{sm_path}: In sync"
 
 def main():

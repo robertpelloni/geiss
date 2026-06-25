@@ -63,7 +63,11 @@ func TestTaskRouterHandler(t *testing.T) {
 
 func TestQueueTelemetryHandler(t *testing.T) {
 	// Setup mock DB for testing
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> jules-9396211896448288708-4318ead9
 	req, err := http.NewRequest("GET", "/api/queue/telemetry", nil)
 	if err != nil {
 		t.Fatal(err)

@@ -25,7 +25,11 @@ def get_submodules(cwd=None):
     output = run_cmd(["git", "config", "--file", ".gitmodules", "--get-regexp", "path"], cwd)
     if not output:
         return []
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> jules-9396211896448288708-4318ead9
     paths = []
     for line in output.splitlines():
         # Line format: submodule.<name>.path <path>
@@ -42,7 +46,11 @@ def get_default_branch(repo_path):
         for line in output.splitlines():
             if "HEAD branch" in line:
                 return line.split(":")[1].strip()
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> jules-9396211896448288708-4318ead9
     # Fallback checking local branches
     branches = run_cmd(["git", "branch"], cwd=repo_path)
     if branches:
@@ -83,26 +91,42 @@ def update_submodule(submodule_path, root_dir):
 
 def main():
     root_dir = os.getcwd()
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> jules-9396211896448288708-4318ead9
     # Ensure we are in a git repository
     if not os.path.exists(".git"):
         print("Error: Must be run from the root of a git repository.")
         sys.exit(1)
 
     print("Initializing global submodule update...")
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> jules-9396211896448288708-4318ead9
     # Basic init for root
     run_cmd(["git", "submodule", "update", "--init", "--recursive"])
 
     submodules = get_submodules(root_dir)
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> jules-9396211896448288708-4318ead9
     if not submodules:
         print("No submodules found in .gitmodules.")
         return
 
     for sm_path in submodules:
         update_submodule(sm_path, root_dir)
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> jules-9396211896448288708-4318ead9
     print("\nAll submodules updated successfully.")
 
 if __name__ == "__main__":

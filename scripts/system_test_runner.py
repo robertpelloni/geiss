@@ -17,15 +17,25 @@ def run_script(script_name, args=[]):
     print(f"\n{'='*60}")
     print(f"EXECUTING: {script_name}")
     print(f"{'='*60}")
+<<<<<<< HEAD
 
     script_path = os.path.join(os.getcwd(), "scripts", script_name)
 
+=======
+
+    script_path = os.path.join(os.getcwd(), "scripts", script_name)
+
+>>>>>>> jules-9396211896448288708-4318ead9
     if not os.path.exists(script_path):
         print(f"Error: {script_path} not found.")
         return False
 
     cmd = ["python3", script_path] + args
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> jules-9396211896448288708-4318ead9
     try:
         # We don't capture output here so it streams directly to the console
         result = subprocess.run(cmd, check=True)

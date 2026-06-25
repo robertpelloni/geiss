@@ -16,7 +16,11 @@ def get_all_submodules(root_dir):
     gitmodules_path = os.path.join(root_dir, '.gitmodules')
     if not os.path.exists(gitmodules_path):
         return submodules
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> jules-9396211896448288708-4318ead9
     with open(gitmodules_path, 'r') as f:
         for line in f:
             if line.strip().startswith('path = '):
@@ -29,18 +33,30 @@ def process_file(filepath, search_str, replace_str):
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
             content = f.read()
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> jules-9396211896448288708-4318ead9
         if search_str in content:
             new_content = content.replace(search_str, replace_str)
             with open(filepath, 'w', encoding='utf-8') as f:
                 f.write(new_content)
             return True
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> jules-9396211896448288708-4318ead9
     except UnicodeDecodeError:
         pass # Skip binary files
     except Exception as e:
         print(f"Error processing {filepath}: {e}")
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> jules-9396211896448288708-4318ead9
     return False
 
 def search_and_replace_in_dir(directory, search_str, replace_str, dry_run=False):
@@ -49,7 +65,11 @@ def search_and_replace_in_dir(directory, search_str, replace_str, dry_run=False)
     for root, _, files in os.walk(directory):
         if '.git' in root:
             continue # Skip git directories
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> jules-9396211896448288708-4318ead9
         for file in files:
             filepath = os.path.join(root, file)
             if dry_run:
@@ -64,7 +84,11 @@ def search_and_replace_in_dir(directory, search_str, replace_str, dry_run=False)
                 if process_file(filepath, search_str, replace_str):
                     print(f"Modified: {filepath}")
                     modifications += 1
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> jules-9396211896448288708-4318ead9
     return modifications
 
 def main():
@@ -72,6 +96,7 @@ def main():
     parser.add_argument("search_str", help="The string to search for.")
     parser.add_argument("replace_str", help="The string to replace it with.")
     parser.add_argument("--dry-run", action="store_true", help="Print files that would be modified without changing them.")
+<<<<<<< HEAD
 
     args = parser.parse_args()
 
@@ -89,6 +114,25 @@ def main():
         if os.path.exists(submodule):
             total_modifications += search_and_replace_in_dir(submodule, args.search_str, args.replace_str, args.dry_run)
 
+=======
+
+    args = parser.parse_args()
+
+    root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    submodules = get_all_submodules(root_dir)
+
+    if not submodules:
+        print("No submodules found. Are you running this from the Omni-Workspace root?")
+        return
+
+    total_modifications = 0
+    print(f"Searching for '{args.search_str}' in {len(submodules)} submodules...")
+
+    for submodule in submodules:
+        if os.path.exists(submodule):
+            total_modifications += search_and_replace_in_dir(submodule, args.search_str, args.replace_str, args.dry_run)
+
+>>>>>>> jules-9396211896448288708-4318ead9
     if args.dry_run:
         print(f"Dry run complete. {total_modifications} files would be modified.")
     else:

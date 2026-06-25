@@ -142,3 +142,8 @@ and this project adheres strictly to the versioning defined in the global `VERSI
 - Added native Go `taskRouterHandler` to the Fiber-equivalent `net/http` router.
 - Authored robust unit tests in `backend-go/main_test.go` covering `CIAutoFixHandler`, `TaskRouterHandler`, and `QueueTelemetryHandler`.
 - Deleted legacy python script `task_router.py`.
+
+## [1.0.25] - System Wide Submodule Synchronization
+- Ran comprehensive fetch and merge against upstream `geiss` repository.
+- Re-initialized and updated all submodules (`aios`, `bobmani`, `borg`, `fwber`).
+- Cleaned the main directory and preserved local execution branches via intelligent branching strategy (`jules-geiss-sync-1`).

@@ -23,14 +23,22 @@ function App() {
         .then(data => setQueue(data || []))
         .catch(err => console.error("Failed to fetch queue telemetry:", err))
     }, 2000)
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> jules-9396211896448288708-4318ead9
     return () => clearInterval(interval)
   }, [])
 
   return (
     <div className="p-8 bg-gray-900 text-white min-h-screen">
       <h1 className="text-3xl font-bold mb-6 text-blue-400">Jules Autopilot Dashboard</h1>
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> jules-9396211896448288708-4318ead9
       <div className="grid grid-cols-3 gap-8">
         {/* Submodule Status */}
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
@@ -61,7 +69,11 @@ function App() {
                 {anomaly.warning && (
                   <div className="mt-4 p-3 bg-red-900 bg-opacity-50 border border-red-500 rounded">
                     <p className="text-red-400 font-bold">WARNING: {anomaly.warning}</p>
+<<<<<<< HEAD
                     <button
+=======
+                    <button
+>>>>>>> jules-9396211896448288708-4318ead9
                       onClick={() => {
                         fetch('/api/shadow/autofix', { method: 'POST' })
                           .then(res => res.json())
@@ -80,7 +92,11 @@ function App() {
              <p className="text-gray-400">Loading shadow pilot data...</p>
           )}
         </div>
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> jules-9396211896448288708-4318ead9
         {/* Queue Telemetry */}
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
           <h2 className="text-2xl font-semibold mb-4 text-purple-400" title="Real-time view of the database-backed task execution queue.">Queue Telemetry</h2>
@@ -101,7 +117,11 @@ function App() {
             </ul>
           )}
         </div>
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> jules-9396211896448288708-4318ead9
       </div>
     </div>
   )

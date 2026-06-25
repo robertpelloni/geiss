@@ -24,7 +24,11 @@ class TestUIScaffoldGenerator(unittest.TestCase):
         success, msg = ui_scaffold_generator.create_scaffold(self.test_dir, "test_backend.py")
         self.assertTrue(success)
         self.assertTrue("Successfully created" in msg)
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> jules-9396211896448288708-4318ead9
         # Verify file exists and has content
         file_path = os.path.join(self.test_dir, "TestBackend.jsx")
         self.assertTrue(os.path.exists(file_path))
