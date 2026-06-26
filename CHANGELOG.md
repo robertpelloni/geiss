@@ -148,3 +148,9 @@ and this project adheres strictly to the versioning defined in the global `VERSI
 - Added native Go `conflictResolutionHandler` to the Fiber-equivalent `net/http` router.
 - Authored robust unit tests for `conflictResolutionHandler` in `backend-go/main_test.go`.
 - Deleted legacy python script `conflict_resolution.py` and its test `test_conflict_resolution.py`.
+
+## [1.0.27] - Drift Detection Go Migration
+- Migrated `scripts/drift_detection_daemon.py` to `backend-go/drift_detection_daemon.go`.
+- Added native Go `driftDetectionHandler` to the backend router.
+- Added robust unit test for `driftDetectionHandler` in `backend-go/main_test.go`.
+- Deleted legacy Python script `drift_detection_daemon.py` and its test `test_drift_detection.py`.

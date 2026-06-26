@@ -104,3 +104,24 @@ func TestConflictResolutionHandler(t *testing.T) {
 		t.Errorf("expected 0 conflicts, got %d", len(resp))
 	}
 }
+
+func TestDriftDetectionHandler(t *testing.T) {
+	req, err := http.NewRequest("GET", "/api/system/drift", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(driftDetectionHandler)
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	var resp []DriftReport
+	if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
+		t.Fatal(err)
+	}
+}
