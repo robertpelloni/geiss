@@ -15,6 +15,7 @@ func main() {
 	http.HandleFunc("/api/tasks/route", taskRouterHandler)
 	http.HandleFunc("/api/conflicts/resolve", conflictResolutionHandler)
 	http.HandleFunc("/api/system/drift", driftDetectionHandler)
+	http.HandleFunc("/api/system/prune", pruneSubmodulesHandler)
 
 	// Start background daemons
 	startShadowDaemon()

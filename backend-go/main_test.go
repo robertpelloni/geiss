@@ -125,3 +125,24 @@ func TestDriftDetectionHandler(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestPruneSubmodulesHandler(t *testing.T) {
+	req, err := http.NewRequest("GET", "/api/system/prune", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(pruneSubmodulesHandler)
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	var resp []PruneReport
+	if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
+		t.Fatal(err)
+	}
+}

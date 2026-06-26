@@ -3,7 +3,7 @@
 ## Session Summary
 - Continued Continuous Autonomous Execution.
 - Executed tasks from the `TODO.md` sprint backlog.
-- Successfully migrated the `drift_detection_daemon.py` logic to a native Go endpoint (`/api/system/drift`) inside the backend.
+- Successfully migrated the `prune_broken_submodules.py` logic to a native Go endpoint (`/api/system/prune`) inside the backend.
 - Appended unit tests for the Go backend API ensuring robustness, and successfully passed them.
 
 ## State of the System

@@ -154,3 +154,9 @@ and this project adheres strictly to the versioning defined in the global `VERSI
 - Added native Go `driftDetectionHandler` to the backend router.
 - Added robust unit test for `driftDetectionHandler` in `backend-go/main_test.go`.
 - Deleted legacy Python script `drift_detection_daemon.py` and its test `test_drift_detection.py`.
+
+## [1.0.28] - Prune Submodules Go Migration
+- Migrated `scripts/prune_broken_submodules.py` to `backend-go/prune_submodules.go`.
+- Added native Go `pruneSubmodulesHandler` to the backend router.
+- Added robust unit test for `pruneSubmodulesHandler` in `backend-go/main_test.go`.
+- Deleted legacy Python script `prune_broken_submodules.py`.
