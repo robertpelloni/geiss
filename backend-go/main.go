@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
+		initDB()
 	// Register API handlers
 	http.HandleFunc("/api/shadow/diff", shadowPilotHandler)
 	http.HandleFunc("/system/status", submoduleStatusHandler)

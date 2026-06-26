@@ -186,3 +186,24 @@ func TestGenerateDashboardHandler(t *testing.T) {
 		t.Errorf("expected success to be true")
 	}
 }
+
+func TestSubmoduleStatusHandler(t *testing.T) {
+	req, err := http.NewRequest("GET", "/system/status", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(submoduleStatusHandler)
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	var resp []SubmoduleStatus
+	if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
+		t.Fatal(err)
+	}
+}
