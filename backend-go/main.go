@@ -13,11 +13,8 @@ func main() {
 	http.HandleFunc("/api/shadow/autofix", ciAutoFixHandler)
 	http.HandleFunc("/api/queue/telemetry", queueTelemetryHandler)
 	http.HandleFunc("/api/tasks/route", taskRouterHandler)
-<<<<<<< HEAD
+	http.HandleFunc("/api/conflicts/resolve", conflictResolutionHandler)
 
-=======
-
->>>>>>> jules-9396211896448288708-4318ead9
 	// Start background daemons
 	startShadowDaemon()
 	StartQueueWorker()

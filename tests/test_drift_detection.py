@@ -18,11 +18,7 @@ class TestDriftDetection(unittest.TestCase):
     @patch('drift_detection_daemon.run_cmd')
     def test_sync_submodule(self, mock_run_cmd, mock_exists):
         mock_exists.return_value = True
-<<<<<<< HEAD
 
-=======
-
->>>>>>> jules-9396211896448288708-4318ead9
         # Mock responses for git fetch, local hash, branch name, and remote hash
         def side_effect(cmd, **kwargs):
             if "fetch" in cmd: return ""
@@ -30,15 +26,9 @@ class TestDriftDetection(unittest.TestCase):
             if "@{u}" in cmd: return "origin/main"
             if "origin/main" in cmd: return "abcdef1"
             return ""
-<<<<<<< HEAD
 
         mock_run_cmd.side_effect = side_effect
 
-=======
-
-        mock_run_cmd.side_effect = side_effect
-
->>>>>>> jules-9396211896448288708-4318ead9
         result = drift_detection_daemon.check_drift("fake/path")
         self.assertEqual(result, "fake/path: In sync")
 
@@ -46,11 +36,7 @@ class TestDriftDetection(unittest.TestCase):
     @patch('drift_detection_daemon.run_cmd')
     def test_drifted_submodule(self, mock_run_cmd, mock_exists):
         mock_exists.return_value = True
-<<<<<<< HEAD
 
-=======
-
->>>>>>> jules-9396211896448288708-4318ead9
         # Mock responses indicating a mismatch
         def side_effect(cmd, **kwargs):
             if "fetch" in cmd: return ""
@@ -58,15 +44,9 @@ class TestDriftDetection(unittest.TestCase):
             if "@{u}" in cmd: return "origin/main"
             if "origin/main" in cmd: return "1234567"
             return ""
-<<<<<<< HEAD
 
         mock_run_cmd.side_effect = side_effect
 
-=======
-
-        mock_run_cmd.side_effect = side_effect
-
->>>>>>> jules-9396211896448288708-4318ead9
         result = drift_detection_daemon.check_drift("fake/path")
         self.assertTrue("DRIFT DETECTED" in result)
 

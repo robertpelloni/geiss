@@ -26,7 +26,6 @@ def run_cmd(cmd, cwd=None, check=True):
 def generate_github_action(submodule_path):
     """Generates a standard GitHub Actions CI/CD workflow for the submodule."""
     submodule_name = os.path.basename(os.path.normpath(submodule_path))
-<<<<<<< HEAD
 
     # We will place this workflow in the root Omni-Workspace .github/workflows
     workflow_dir = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')), '.github', 'workflows')
@@ -34,15 +33,6 @@ def generate_github_action(submodule_path):
 
     workflow_path = os.path.join(workflow_dir, f"{submodule_name}_pipeline.yml")
 
-=======
-
-    # We will place this workflow in the root Omni-Workspace .github/workflows
-    workflow_dir = os.path.join(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')), '.github', 'workflows')
-    os.makedirs(workflow_dir, exist_ok=True)
-
-    workflow_path = os.path.join(workflow_dir, f"{submodule_name}_pipeline.yml")
-
->>>>>>> jules-9396211896448288708-4318ead9
     workflow_content = {
         "name": f"Omni-Workspace CI/CD - {submodule_name}",
         "on": {
@@ -119,7 +109,6 @@ def run_pipeline(submodule_path, environment="staging"):
         return False, f"Submodule path '{submodule_path}' does not exist."
 
     print(f"\n--- Initiating Deployment Pipeline for: {submodule_path} ---")
-<<<<<<< HEAD
 
     if not build_stage(submodule_path):
         return False, "Build stage failed."
@@ -127,15 +116,6 @@ def run_pipeline(submodule_path, environment="staging"):
     if not test_stage(submodule_path):
         return False, "Test stage failed."
 
-=======
-
-    if not build_stage(submodule_path):
-        return False, "Build stage failed."
-
-    if not test_stage(submodule_path):
-        return False, "Test stage failed."
-
->>>>>>> jules-9396211896448288708-4318ead9
     if not deploy_stage(submodule_path, environment):
         return False, "Deploy stage failed."
 
@@ -163,11 +143,7 @@ def main():
     env = sys.argv[2] if len(sys.argv) > 2 else "staging"
 
     success, message = run_pipeline(submodule, env)
-<<<<<<< HEAD
 
-=======
-
->>>>>>> jules-9396211896448288708-4318ead9
     if success:
         print(f"\nSUCCESS: {message}")
     else:

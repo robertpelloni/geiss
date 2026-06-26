@@ -34,21 +34,13 @@ def audit_submodule(sm_path):
     """
     backend_count = scan_directory_for_extensions(sm_path, BACKEND_EXTS)
     frontend_count = scan_directory_for_extensions(sm_path, FRONTEND_EXTS)
-<<<<<<< HEAD
 
-=======
-
->>>>>>> jules-9396211896448288708-4318ead9
     status = "OK"
     if backend_count > 0 and frontend_count == 0:
          status = "WARNING: Backend logic detected with ZERO frontend files."
     elif backend_count > 10 and frontend_count < 2:
          status = "WARNING: High backend-to-frontend ratio. UI may be incomplete."
-<<<<<<< HEAD
 
-=======
-
->>>>>>> jules-9396211896448288708-4318ead9
     return {
         "submodule": sm_path,
         "backend_files": backend_count,
@@ -59,11 +51,7 @@ def audit_submodule(sm_path):
 def main():
     root_dir = os.getcwd()
     submodules = get_subdirectories(root_dir)
-<<<<<<< HEAD
 
-=======
-
->>>>>>> jules-9396211896448288708-4318ead9
     # Filter out known non-submodule directories
     submodules = [sm for sm in submodules if sm not in ('scripts', 'docs', 'tests')]
 
@@ -72,11 +60,7 @@ def main():
         return
 
     print("Starting UI Coverage Audit...\n")
-<<<<<<< HEAD
 
-=======
-
->>>>>>> jules-9396211896448288708-4318ead9
     for sm in submodules:
         result = audit_submodule(sm)
         print(f"[{result['submodule']}]")

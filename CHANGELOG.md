@@ -143,7 +143,8 @@ and this project adheres strictly to the versioning defined in the global `VERSI
 - Authored robust unit tests in `backend-go/main_test.go` covering `CIAutoFixHandler`, `TaskRouterHandler`, and `QueueTelemetryHandler`.
 - Deleted legacy python script `task_router.py`.
 
-## [1.0.25] - System Wide Submodule Synchronization
-- Ran comprehensive fetch and merge against upstream `geiss` repository.
-- Re-initialized and updated all submodules (`aios`, `bobmani`, `borg`, `fwber`).
-- Cleaned the main directory and preserved local execution branches via intelligent branching strategy (`jules-geiss-sync-1`).
+## [1.0.26] - Conflict Resolution Go Migration
+- Migrated `scripts/conflict_resolution.py` to `backend-go/conflict_resolution.go`.
+- Added native Go `conflictResolutionHandler` to the Fiber-equivalent `net/http` router.
+- Authored robust unit tests for `conflictResolutionHandler` in `backend-go/main_test.go`.
+- Deleted legacy python script `conflict_resolution.py` and its test `test_conflict_resolution.py`.

@@ -24,29 +24,17 @@ func checkSubmodules() ([]SubmoduleStatus, error) {
 
 	lines := strings.Split(strings.TrimSpace(string(out)), "\n")
 	var statuses []SubmoduleStatus
-<<<<<<< HEAD
 
-=======
-
->>>>>>> jules-9396211896448288708-4318ead9
 	for _, line := range lines {
 		if line == "" {
 			continue
 		}
-<<<<<<< HEAD
 
-=======
-
->>>>>>> jules-9396211896448288708-4318ead9
 		parts := strings.Fields(line)
 		if len(parts) >= 2 {
 			hashPart := parts[0]
 			statusFlag := "Synchronized"
-<<<<<<< HEAD
 
-=======
-
->>>>>>> jules-9396211896448288708-4318ead9
 			if strings.HasPrefix(hashPart, "-") {
 				statusFlag = "Not Initialized"
 				hashPart = hashPart[1:]
@@ -57,11 +45,7 @@ func checkSubmodules() ([]SubmoduleStatus, error) {
 				statusFlag = "Merge Conflict"
 				hashPart = hashPart[1:]
 			}
-<<<<<<< HEAD
 
-=======
-
->>>>>>> jules-9396211896448288708-4318ead9
 			statuses = append(statuses, SubmoduleStatus{
 				Commit: hashPart,
 				Path:   parts[1],
@@ -69,11 +53,7 @@ func checkSubmodules() ([]SubmoduleStatus, error) {
 			})
 		}
 	}
-<<<<<<< HEAD
 
-=======
-
->>>>>>> jules-9396211896448288708-4318ead9
 	return statuses, nil
 }
 
@@ -83,11 +63,7 @@ func submoduleStatusHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-<<<<<<< HEAD
 
-=======
-
->>>>>>> jules-9396211896448288708-4318ead9
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(statuses)
 }

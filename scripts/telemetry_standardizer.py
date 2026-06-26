@@ -59,11 +59,7 @@ def standardize_file(file_path):
 
     lang = detect_language(file_path)
     stub = ""
-<<<<<<< HEAD
 
-=======
-
->>>>>>> jules-9396211896448288708-4318ead9
     if lang == 'python':
         stub = PYTHON_LOG_STUB
     elif lang == 'nodejs':
@@ -74,17 +70,10 @@ def standardize_file(file_path):
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             original_content = f.read()
-<<<<<<< HEAD
 
         with open(file_path, 'w', encoding='utf-8') as f:
             f.write(stub + "\n" + original_content)
 
-=======
-
-        with open(file_path, 'w', encoding='utf-8') as f:
-            f.write(stub + "\n" + original_content)
-
->>>>>>> jules-9396211896448288708-4318ead9
         return True, "Telemetry injected successfully"
     except Exception as e:
         return False, f"Error writing to file: {e}"
@@ -109,22 +98,14 @@ def main():
         sys.exit(1)
 
     target_dir = sys.argv[1]
-<<<<<<< HEAD
 
-=======
-
->>>>>>> jules-9396211896448288708-4318ead9
     if not os.path.exists(target_dir):
         print(f"Directory {target_dir} does not exist.")
         sys.exit(1)
 
     print(f"Starting telemetry standardization scan in {target_dir}...\n")
     results = scan_and_standardize(target_dir)
-<<<<<<< HEAD
 
-=======
-
->>>>>>> jules-9396211896448288708-4318ead9
     for path, success, msg in results:
         status = "SUCCESS" if success else "SKIPPED"
         print(f"[{status}] {path} - {msg}")

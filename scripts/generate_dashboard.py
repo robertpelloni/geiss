@@ -21,11 +21,7 @@ def get_submodules():
     output = run_cmd(["git", "config", "--file", ".gitmodules", "--get-regexp", "path"])
     if output == "Unknown" or not output:
         return []
-<<<<<<< HEAD
 
-=======
-
->>>>>>> jules-9396211896448288708-4318ead9
     paths = []
     for line in output.splitlines():
         parts = line.split(" ", 1)
@@ -36,7 +32,6 @@ def get_submodules():
 def get_repo_status(path):
     if not os.path.exists(os.path.join(path, ".git")):
         return "Not Initialized", "N/A", "N/A"
-<<<<<<< HEAD
 
     branch = run_cmd(["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=path)
     commit = run_cmd(["git", "rev-parse", "--short", "HEAD"], cwd=path)
@@ -45,53 +40,27 @@ def get_repo_status(path):
     status_output = run_cmd(["git", "status", "--porcelain"], cwd=path)
     status = "Clean" if not status_output else "Dirty"
 
-=======
-
-    branch = run_cmd(["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=path)
-    commit = run_cmd(["git", "rev-parse", "--short", "HEAD"], cwd=path)
-
-    # Check if working tree is clean
-    status_output = run_cmd(["git", "status", "--porcelain"], cwd=path)
-    status = "Clean" if not status_output else "Dirty"
-
->>>>>>> jules-9396211896448288708-4318ead9
     return branch, commit, status
 
 def main():
     dashboard_file = "SUBMODULE_DASHBOARD.md"
     submodules = get_submodules()
-<<<<<<< HEAD
 
     with open(dashboard_file, "w") as f:
         f.write("# Omni-Workspace Submodule Dashboard\n\n")
         f.write(f"*Last updated: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*\n\n")
 
-=======
-
-    with open(dashboard_file, "w") as f:
-        f.write("# Omni-Workspace Submodule Dashboard\n\n")
-        f.write(f"*Last updated: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*\n\n")
-
->>>>>>> jules-9396211896448288708-4318ead9
         if not submodules:
             f.write("No submodules detected in `.gitmodules`.\n")
             return
 
         f.write("| Submodule | Branch | Commit | Status |\n")
         f.write("| --- | --- | --- | --- |\n")
-<<<<<<< HEAD
 
         for sm in sorted(submodules):
             branch, commit, status = get_repo_status(sm)
             f.write(f"| `{sm}` | `{branch}` | `{commit}` | {status} |\n")
 
-=======
-
-        for sm in sorted(submodules):
-            branch, commit, status = get_repo_status(sm)
-            f.write(f"| `{sm}` | `{branch}` | `{commit}` | {status} |\n")
-
->>>>>>> jules-9396211896448288708-4318ead9
     print(f"Generated {dashboard_file}")
 
 if __name__ == "__main__":

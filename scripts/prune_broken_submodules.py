@@ -21,11 +21,7 @@ def get_submodules():
     output = run_cmd(["git", "config", "--file", ".gitmodules", "--get-regexp", "path"], check=False)
     if not output:
         return []
-<<<<<<< HEAD
 
-=======
-
->>>>>>> jules-9396211896448288708-4318ead9
     paths = []
     for line in output.splitlines():
         parts = line.split(" ", 1)
@@ -43,21 +39,13 @@ def main():
 
     for sm in submodules:
         sm_url = run_cmd(["git", "config", "--file", ".gitmodules", "--get", f"submodule.{sm}.url"], check=False)
-<<<<<<< HEAD
 
-=======
-
->>>>>>> jules-9396211896448288708-4318ead9
         # We consider it broken if the path doesn't exist AND we can't fetch the URL via ls-remote
         if sm_url:
             print(f"Checking {sm} ({sm_url})...")
             # A quick check to see if remote is accessible
             remote_check = run_cmd(["git", "ls-remote", sm_url], check=False)
-<<<<<<< HEAD
 
-=======
-
->>>>>>> jules-9396211896448288708-4318ead9
             if remote_check is None:
                 print(f"WARNING: Submodule '{sm}' at '{sm_url}' appears inaccessible.")
                 # We could auto-remove here, but for safety in this iteration, we just flag it.

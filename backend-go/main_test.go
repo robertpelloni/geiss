@@ -63,11 +63,7 @@ func TestTaskRouterHandler(t *testing.T) {
 
 func TestQueueTelemetryHandler(t *testing.T) {
 	// Setup mock DB for testing
-<<<<<<< HEAD
 
-=======
-
->>>>>>> jules-9396211896448288708-4318ead9
 	req, err := http.NewRequest("GET", "/api/queue/telemetry", nil)
 	if err != nil {
 		t.Fatal(err)
@@ -80,5 +76,31 @@ func TestQueueTelemetryHandler(t *testing.T) {
 
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+}
+
+func TestConflictResolutionHandler(t *testing.T) {
+	req, err := http.NewRequest("GET", "/api/conflicts/resolve", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(conflictResolutionHandler)
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	var resp []ConflictReport
+	if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
+		t.Fatal(err)
+	}
+
+	// Given a fresh start, there should be no conflicts
+	if len(resp) != 0 {
+		t.Errorf("expected 0 conflicts, got %d", len(resp))
 	}
 }

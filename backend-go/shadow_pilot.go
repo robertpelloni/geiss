@@ -5,11 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-<<<<<<< HEAD
 
-=======
-
->>>>>>> jules-9396211896448288708-4318ead9
 	"os/exec"
 	"strings"
 	"time"
@@ -24,15 +20,9 @@ type AnomalyReport struct {
 
 func monitorGitDiff() (*AnomalyReport, error) {
 	cmd := exec.Command("git", "diff", "--name-only")
-<<<<<<< HEAD
 	cmd.Dir = ".."
 	out, err := cmd.CombinedOutput()
 
-=======
-	cmd.Dir = ".."
-	out, err := cmd.CombinedOutput()
-
->>>>>>> jules-9396211896448288708-4318ead9
 	if err != nil {
 		return nil, fmt.Errorf("git diff failed: %v", err)
 	}
@@ -48,29 +38,17 @@ func monitorGitDiff() (*AnomalyReport, error) {
 	cmdFull := exec.Command("git", "diff")
 	cmdFull.Dir = ".."
 	fullOut, _ := cmdFull.CombinedOutput()
-<<<<<<< HEAD
 
-=======
-
->>>>>>> jules-9396211896448288708-4318ead9
 	report := &AnomalyReport{
 		Timestamp: time.Now(),
 		Files:     modifiedFiles,
 		DiffSize:  len(fullOut),
 	}
-<<<<<<< HEAD
 
 	if len(fullOut) > 50000 {
 		report.Warning = "Massive diff detected! Potential anomaly or automated mass refactoring."
 	}
 
-=======
-
-	if len(fullOut) > 50000 {
-		report.Warning = "Massive diff detected! Potential anomaly or automated mass refactoring."
-	}
-
->>>>>>> jules-9396211896448288708-4318ead9
 	return report, nil
 }
 
@@ -80,11 +58,7 @@ func shadowPilotHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-<<<<<<< HEAD
 
-=======
-
->>>>>>> jules-9396211896448288708-4318ead9
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(report)
 }

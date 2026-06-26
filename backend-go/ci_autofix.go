@@ -19,11 +19,7 @@ func ciAutoFixHandler(w http.ResponseWriter, r *http.Request) {
 		Success: true,
 		Message: "Auto-fix executed natively via Go pipeline routines.",
 	}
-<<<<<<< HEAD
 
-=======
-
->>>>>>> jules-9396211896448288708-4318ead9
 	w.Header().Set("Content-Type", "application/json")
 	if !resp.Success {
 		w.WriteHeader(http.StatusInternalServerError)
