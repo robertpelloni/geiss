@@ -170,3 +170,9 @@ and this project adheres strictly to the versioning defined in the global `VERSI
 ## [1.0.30] - Complete Go Backend Testing Coverage
 - Added missing `TestSubmoduleStatusHandler` unit test to `backend-go/main_test.go` to achieve 100% endpoint coverage.
 - Updated `VERSION.md` and `package.json` to 1.0.30.
+
+## [1.0.31] - UI Auditor Go Migration
+- Migrated `scripts/ui_auditor.py` to `backend-go/ui_auditor.go`.
+- Added native Go `uiAuditorHandler` to the backend router.
+- Added robust unit test for `uiAuditorHandler` in `backend-go/main_test.go`.
+- Deleted legacy Python script `ui_auditor.py` and its test file.

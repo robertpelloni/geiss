@@ -18,6 +18,7 @@ func main() {
 	http.HandleFunc("/api/system/drift", driftDetectionHandler)
 	http.HandleFunc("/api/system/prune", pruneSubmodulesHandler)
 	http.HandleFunc("/api/system/dashboard", generateDashboardHandler)
+	http.HandleFunc("/api/system/audit", uiAuditorHandler)
 
 	// Start background daemons
 	startShadowDaemon()

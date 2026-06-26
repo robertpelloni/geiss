@@ -207,3 +207,24 @@ func TestSubmoduleStatusHandler(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestUIAuditorHandler(t *testing.T) {
+	req, err := http.NewRequest("GET", "/api/system/audit", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(uiAuditorHandler)
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	var resp []UIAuditReport
+	if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
+		t.Fatal(err)
+	}
+}
