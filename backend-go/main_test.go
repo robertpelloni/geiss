@@ -5,8 +5,22 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
+	"gorm.io/gorm"
+	"gorm.io/driver/sqlite"
 )
+
+func setupTestDB() {
+	// Use an in-memory sqlite db for tests
+	_ = os.Remove("jules_test.db")
+	db, _ = gorm.Open(sqlite.Open("jules_test.db"), &gorm.Config{})
+	db.AutoMigrate(&Task{})
+}
+
+func teardownTestDB() {
+	_ = os.Remove("jules_test.db")
+}
 
 func TestCIAutoFixHandler(t *testing.T) {
 	req, err := http.NewRequest("POST", "/api/shadow/autofix", nil)
@@ -62,7 +76,8 @@ func TestTaskRouterHandler(t *testing.T) {
 }
 
 func TestQueueTelemetryHandler(t *testing.T) {
-	// Setup mock DB for testing
+	setupTestDB()
+	defer teardownTestDB()
 
 	req, err := http.NewRequest("GET", "/api/queue/telemetry", nil)
 	if err != nil {
@@ -144,5 +159,30 @@ func TestPruneSubmodulesHandler(t *testing.T) {
 	var resp []PruneReport
 	if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestGenerateDashboardHandler(t *testing.T) {
+	req, err := http.NewRequest("POST", "/api/system/dashboard", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(generateDashboardHandler)
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	var resp DashboardResponse
+	if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
+		t.Fatal(err)
+	}
+
+	if !resp.Success {
+		t.Errorf("expected success to be true")
 	}
 }

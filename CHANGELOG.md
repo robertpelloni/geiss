@@ -160,3 +160,9 @@ and this project adheres strictly to the versioning defined in the global `VERSI
 - Added native Go `pruneSubmodulesHandler` to the backend router.
 - Added robust unit test for `pruneSubmodulesHandler` in `backend-go/main_test.go`.
 - Deleted legacy Python script `prune_broken_submodules.py`.
+
+## [1.0.29] - Dashboard Generation Go Migration
+- Migrated `scripts/generate_dashboard.py` to `backend-go/generate_dashboard.go`.
+- Added native Go `generateDashboardHandler` to the backend router.
+- Added robust unit test for `generateDashboardHandler` in `backend-go/main_test.go`.
+- Deleted legacy Python script `generate_dashboard.py`.
