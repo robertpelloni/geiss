@@ -280,3 +280,31 @@ func TestGlobalSearchAndReplaceHandler(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestDeploymentPipelineHandler(t *testing.T) {
+	payload := PipelineRequest{
+		Submodule:   "dummy_submodule",
+		Environment: "staging",
+		Generate:    false,
+	}
+	b, _ := json.Marshal(payload)
+
+	req, err := http.NewRequest("POST", "/api/system/pipeline", bytes.NewBuffer(b))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(deploymentPipelineHandler)
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	var resp PipelineResponse
+	if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
+		t.Fatal(err)
+	}
+}
