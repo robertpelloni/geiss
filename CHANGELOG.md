@@ -176,3 +176,9 @@ and this project adheres strictly to the versioning defined in the global `VERSI
 - Added native Go `uiAuditorHandler` to the backend router.
 - Added robust unit test for `uiAuditorHandler` in `backend-go/main_test.go`.
 - Deleted legacy Python script `ui_auditor.py` and its test file.
+
+## [1.0.32] - Telemetry Standardizer Go Migration
+- Migrated `scripts/telemetry_standardizer.py` to `backend-go/telemetry_standardizer.go`.
+- Added native Go `telemetryStandardizerHandler` to the backend router.
+- Added robust unit test for `telemetryStandardizerHandler` in `backend-go/main_test.go`.
+- Deleted legacy Python script `telemetry_standardizer.py` and its test file.

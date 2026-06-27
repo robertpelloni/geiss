@@ -228,3 +228,27 @@ func TestUIAuditorHandler(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestTelemetryStandardizerHandler(t *testing.T) {
+	payload := TelemetryRequest{TargetDir: "."}
+	b, _ := json.Marshal(payload)
+
+	req, err := http.NewRequest("POST", "/api/system/telemetry", bytes.NewBuffer(b))
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(telemetryStandardizerHandler)
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	var resp []TelemetryReport
+	if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
+		t.Fatal(err)
+	}
+}

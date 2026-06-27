@@ -1,3 +1,10 @@
+
+// Omni-Workspace Standard Telemetry
+const omniLogger = {
+    info: (msg) => console.log(`[${new Date().toISOString()}] - [OMNI] - INFO - ${msg}`),
+    error: (msg) => console.error(`[${new Date().toISOString()}] - [OMNI] - ERROR - ${msg}`)
+};
+
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 

@@ -3,7 +3,7 @@
 ## Session Summary
 - Continued Continuous Autonomous Execution.
 - Executed tasks from the `TODO.md` sprint backlog.
-- Successfully migrated the `ui_auditor.py` logic to a native Go endpoint (`/api/system/audit`) inside the backend.
+- Successfully migrated the `telemetry_standardizer.py` logic to a native Go endpoint (`/api/system/telemetry`) inside the backend.
 - Appended unit tests for the Go backend API ensuring robustness, and successfully passed them.
 
 ## State of the System

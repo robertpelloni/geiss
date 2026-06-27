@@ -19,6 +19,7 @@ func main() {
 	http.HandleFunc("/api/system/prune", pruneSubmodulesHandler)
 	http.HandleFunc("/api/system/dashboard", generateDashboardHandler)
 	http.HandleFunc("/api/system/audit", uiAuditorHandler)
+	http.HandleFunc("/api/system/telemetry", telemetryStandardizerHandler)
 
 	// Start background daemons
 	startShadowDaemon()
