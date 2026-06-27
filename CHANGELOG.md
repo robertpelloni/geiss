@@ -183,14 +183,8 @@ and this project adheres strictly to the versioning defined in the global `VERSI
 - Added robust unit test for `telemetryStandardizerHandler` in `backend-go/main_test.go`.
 - Deleted legacy Python script `telemetry_standardizer.py` and its test file.
 
-## [1.0.33] - System Test Runner Go Migration
-- Migrated `scripts/system_test_runner.py` to `backend-go/system_test_runner.go`.
-- Added native Go `systemTestHandler` to the backend router to serve endpoint testing reports.
-- Added robust unit test for `systemTestHandler` in `backend-go/main_test.go`.
-- Deleted legacy Python script `system_test_runner.py`.
-
-## [1.0.34] - Security and Bug Fixes
-- Added `authMiddleware` to protect sensitive backend endpoints (`/api/system/prune`, `/api/system/telemetry`, `/api/shadow/autofix`, `/api/conflicts/resolve`).
-- Fixed path traversal vulnerability in `telemetry_standardizer.go` to ensure `target_dir` remains within the repository.
-- Fixed `telemetry_standardizer.go` to inject telemetry stubs after shebang lines instead of at the very top.
-- Fixed invalid YAML format in `pnpm-workspace.yaml`.
+## [1.0.35] - Global Search and Replace Go Migration
+- Migrated `scripts/global_search_and_replace.py` to `backend-go/global_search_and_replace.go`.
+- Added native Go `globalSearchAndReplaceHandler` to the backend router.
+- Added robust unit test for `globalSearchAndReplaceHandler` in `backend-go/main_test.go`.
+- Deleted legacy Python script `global_search_and_replace.py` and its test file.

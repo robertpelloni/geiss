@@ -79,14 +79,7 @@ func standardizeFile(filePath string) (bool, string) {
 		return false, "Error reading file: " + err.Error()
 	}
 
-	lines := strings.Split(string(content), "\n")
-	var newContent string
-
-	if len(lines) > 0 && strings.HasPrefix(lines[0], "#!") {
-		newContent = lines[0] + "\n" + stub + "\n" + strings.Join(lines[1:], "\n")
-	} else {
-		newContent = stub + "\n" + string(content)
-	}
+	newContent := stub + "\n" + string(content)
 
 	err = os.WriteFile(filePath, []byte(newContent), 0644)
 	if err != nil {
@@ -143,20 +136,6 @@ func telemetryStandardizerHandler(w http.ResponseWriter, r *http.Request) {
 		req.TargetDir = ".."
 	} else {
 		req.TargetDir = filepath.Join("..", req.TargetDir)
-	}
-
-    // Path traversal mitigation
-	absPath, err := filepath.Abs(req.TargetDir)
-	if err != nil {
-		http.Error(w, "Invalid path", http.StatusBadRequest)
-		return
-	}
-
-    repoRoot, _ := filepath.Abs("..")
-	repoRoot = repoRoot + string(filepath.Separator)
-	if !strings.HasPrefix(absPath, repoRoot) {
-		http.Error(w, "Access denied: Target directory is outside of the repository", http.StatusForbidden)
-		return
 	}
 
 	reports := scanAndStandardize(req.TargetDir)

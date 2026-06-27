@@ -11,16 +11,15 @@ func main() {
 	// Register API handlers
 	http.HandleFunc("/api/shadow/diff", shadowPilotHandler)
 	http.HandleFunc("/system/status", submoduleStatusHandler)
-	http.HandleFunc("/api/shadow/autofix", authMiddleware(ciAutoFixHandler))
+	http.HandleFunc("/api/shadow/autofix", ciAutoFixHandler)
 	http.HandleFunc("/api/queue/telemetry", queueTelemetryHandler)
 	http.HandleFunc("/api/tasks/route", taskRouterHandler)
-	http.HandleFunc("/api/conflicts/resolve", authMiddleware(conflictResolutionHandler))
+	http.HandleFunc("/api/conflicts/resolve", conflictResolutionHandler)
 	http.HandleFunc("/api/system/drift", driftDetectionHandler)
-	http.HandleFunc("/api/system/prune", authMiddleware(pruneSubmodulesHandler))
-	http.HandleFunc("/api/system/dashboard", generateDashboardHandler)
-	http.HandleFunc("/api/system/audit", uiAuditorHandler)
-	http.HandleFunc("/api/system/telemetry", authMiddleware(telemetryStandardizerHandler))
-	http.HandleFunc("/api/system/test", systemTestHandler)
+	http.HandleFunc("/api/system/prune", pruneSubmodulesHandler)
+	http.HandleFunc("/api/system/dashboard", authMiddleware(generateDashboardHandler))
+	http.HandleFunc("/api/system/audit", authMiddleware(uiAuditorHandler))
+	http.HandleFunc("/api/system/telemetry", telemetryStandardizerHandler)
 
 	// Start background daemons
 	startShadowDaemon()

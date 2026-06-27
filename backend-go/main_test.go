@@ -253,14 +253,21 @@ func TestTelemetryStandardizerHandler(t *testing.T) {
 	}
 }
 
-func TestSystemTestHandler(t *testing.T) {
-	req, err := http.NewRequest("GET", "/api/system/test", nil)
+func TestGlobalSearchAndReplaceHandler(t *testing.T) {
+	payload := SearchReplaceRequest{
+		SearchStr:  "test_string",
+		ReplaceStr: "new_string",
+		DryRun:     true,
+	}
+	b, _ := json.Marshal(payload)
+
+	req, err := http.NewRequest("POST", "/api/system/refactor", bytes.NewBuffer(b))
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(systemTestHandler)
+	handler := http.HandlerFunc(globalSearchAndReplaceHandler)
 
 	handler.ServeHTTP(rr, req)
 
@@ -268,7 +275,7 @@ func TestSystemTestHandler(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
 	}
 
-	var resp SystemTestReport
+	var resp SearchReplaceReport
 	if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
 		t.Fatal(err)
 	}
