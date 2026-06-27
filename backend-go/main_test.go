@@ -252,3 +252,24 @@ func TestTelemetryStandardizerHandler(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestSystemTestHandler(t *testing.T) {
+	req, err := http.NewRequest("GET", "/api/system/test", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(systemTestHandler)
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	var resp SystemTestReport
+	if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
+		t.Fatal(err)
+	}
+}

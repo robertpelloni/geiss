@@ -63,7 +63,7 @@ function App() {
                     <p className="text-red-400 font-bold">WARNING: {anomaly.warning}</p>
                     <button
                       onClick={() => {
-                        fetch('/api/shadow/autofix', { method: 'POST' })
+                        fetch('/api/shadow/autofix', { method: 'POST', headers: { 'X-API-KEY': '' } })
                           .then(res => res.json())
                           .then(data => alert(data.message))
                           .catch(err => alert("Auto-fix trigger failed."));
