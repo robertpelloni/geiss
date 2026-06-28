@@ -4,6 +4,7 @@ function App() {
   const [submodules, setSubmodules] = useState([])
   const [anomaly, setAnomaly] = useState(null)
   const [queue, setQueue] = useState([])
+  const [logs, setLogs] = useState([])
 
   useEffect(() => {
     fetch('/system/status')
@@ -16,12 +17,17 @@ function App() {
       .then(data => setAnomaly(data))
       .catch(err => console.error("Failed to fetch diff logic:", err))
 
-    // Polling queue telemetry
+    // Polling queue telemetry and logs
     const interval = setInterval(() => {
       fetch('/api/queue/telemetry')
         .then(res => res.json())
         .then(data => setQueue(data || []))
         .catch(err => console.error("Failed to fetch queue telemetry:", err))
+
+      fetch('/api/system/logs', { headers: { 'X-API-KEY': import.meta.env.VITE_JULES_API_KEY || '' } })
+        .then(res => res.json())
+        .then(data => setLogs(data || []))
+        .catch(err => console.error("Failed to fetch logs:", err))
     }, 2000)
 
     return () => clearInterval(interval)
@@ -63,7 +69,7 @@ function App() {
                     <p className="text-red-400 font-bold">WARNING: {anomaly.warning}</p>
                     <button
                       onClick={() => {
-                        fetch('/api/shadow/autofix', { method: 'POST', headers: { 'X-API-KEY': '' } })
+                        fetch('/api/shadow/autofix', { method: 'POST', headers: { 'X-API-KEY': import.meta.env.VITE_JULES_API_KEY || '' } })
                           .then(res => res.json())
                           .then(data => alert(data.message))
                           .catch(err => alert("Auto-fix trigger failed."));
@@ -102,6 +108,20 @@ function App() {
           )}
         </div>
 
+      </div>
+
+      {/* Visual Log Tailer */}
+      <div className="mt-8 bg-gray-800 p-6 rounded-lg shadow-lg">
+        <h2 className="text-2xl font-semibold mb-4 text-cyan-400" title="Live tail of the backend execution logs.">Backend System Logs</h2>
+        <div className="bg-black p-4 rounded h-64 overflow-y-auto font-mono text-xs text-green-400 custom-scrollbar">
+          {logs.length === 0 ? (
+             <p className="text-gray-500 italic">Waiting for log output...</p>
+          ) : (
+             logs.map((logEntry, idx) => (
+                <div key={idx} className="mb-1 border-b border-gray-900 pb-1 break-words">{logEntry.log}</div>
+             ))
+          )}
+        </div>
       </div>
     </div>
   )

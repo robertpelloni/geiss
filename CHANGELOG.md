@@ -188,3 +188,9 @@ and this project adheres strictly to the versioning defined in the global `VERSI
 - Added native Go `globalSearchAndReplaceHandler` to the backend router.
 - Added robust unit test for `globalSearchAndReplaceHandler` in `backend-go/main_test.go`.
 - Deleted legacy Python script `global_search_and_replace.py` and its test file.
+
+## [1.0.37] - Visual Log Tailer Component
+- Implemented `getLogsHandler` in Go (`log_tailer.go`) to output the latest `jules-backend.log` entries via the `/api/system/logs` endpoint.
+- Updated `main.go` to capture stdout to `jules-backend.log` using a `io.MultiWriter`.
+- Added a visual Log Tailer UI component to the React app dashboard (`src/App.jsx`) to display real-time backend execution logs.
+- Added tests for `getLogsHandler`.
