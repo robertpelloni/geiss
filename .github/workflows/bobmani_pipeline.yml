@@ -1,0 +1,22 @@
+name: Omni-Workspace CI/CD - bobmani
+'on':
+  push:
+    paths:
+    - bobmani/**
+  pull_request:
+    paths:
+    - bobmani/**
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.x
+    - name: Run Pipeline for bobmani
+      run: python3 scripts/deployment_pipeline.py bobmani staging
