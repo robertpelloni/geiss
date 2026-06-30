@@ -41,14 +41,14 @@ function App() {
 
       <div className="grid grid-cols-3 gap-8">
         {/* Submodule Status */}
-        <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
+        <div className="bg-gray-800 p-6 rounded-lg shadow-lg relative group">
           <h2 className="text-2xl font-semibold mb-4 text-green-400" title="Live status of all nested git submodules within the Omni-Workspace.">Submodule Status</h2>
-          <p className="text-sm text-gray-300 mb-4">Displays the synchronization state of injected projects.</p>
+          <p className="text-sm text-gray-300 mb-4" title="Displays whether each submodule is synchronized with its upstream remote fork, or if it has drifted or encountered conflicts.">Displays the synchronization state of injected projects.</p>
           {submodules.length === 0 ? <p className="text-gray-400">No submodules synced or error loading.</p> : (
             <ul className="space-y-2">
               {submodules.map((sm, idx) => (
                 <li key={idx} className="flex justify-between items-center border-b border-gray-700 pb-2 hover:bg-gray-750 transition-colors">
-                  <span className="font-mono text-sm font-medium">{sm.path}</span>
+                  <span className="font-mono text-sm font-medium" title={`Repository path: ${sm.path}`}>{sm.path}</span>
                   <span className={`text-xs font-bold px-2 py-1 rounded ${sm.status === 'Synchronized' ? 'bg-green-900 text-green-300' : 'bg-red-900 text-red-300'}`} title={`Current state: ${sm.status}`}>
                     {sm.status}
                   </span>
