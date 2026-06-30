@@ -34,11 +34,13 @@ This repository is an **Omni-Workspace**—a centralized manager and command cen
 5.  **Commit:** Stage changes, commit with descriptive messages, and push.
 6.  **Loop:** Proceed to the next feature without pausing.
 
-### B. Repo Maintenance
-1.  **Update:** Run scripts in `scripts/` to sync submodules and fetch/merge upstream changes.
-2.  **Merge:** Intelligently merge feature branches (local and remote) into `main`.
-3.  **Fix:** Resolve conflicts prioritizing feature retention.
-4.  **Prune:** Use `scripts/prune_broken_submodules.py` to keep `.gitmodules` clean.
+### B. Repo Maintenance & Orchestration
+1.  **Update:** Run `scripts/update_repos_v5.py` to recursively sync all submodules.
+2.  **Monitor:** Run `scripts/drift_detection_daemon.py` to identify submodules falling behind upstream.
+3.  **Standardize:** Run `scripts/telemetry_standardizer.py` to enforce uniform logging, and `scripts/ui_auditor.py` to verify UI coverage (use `scripts/ui_scaffold_generator.py` to fix gaps).
+4.  **Merge & Fix:** Intelligently merge branches. Use `scripts/conflict_resolution.py` to assist with feature-preserving conflict resolution.
+5.  **Prune:** Use `scripts/prune_broken_submodules.py` to keep `.gitmodules` clean.
+6.  **Verify:** Run `scripts/system_test_runner.py` to perform an end-to-end sandbox verification of all core orchestration logic.
 
 ## 5. Model-Specific Roles
 *   **Claude:** Architect, Planner, Documentation Lead. Specialized in large-scale refactoring and holistic system understanding.
