@@ -20,6 +20,7 @@ func main() {
 	http.HandleFunc("/api/system/dashboard", authMiddleware(generateDashboardHandler))
 	http.HandleFunc("/api/system/audit", authMiddleware(uiAuditorHandler))
 	http.HandleFunc("/api/system/telemetry", telemetryStandardizerHandler)
+	http.HandleFunc("/api/system/logs", logTailerHandler)
 
 	// Start background daemons
 	startShadowDaemon()
