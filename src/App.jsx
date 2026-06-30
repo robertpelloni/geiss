@@ -4,6 +4,7 @@ function App() {
   const [submodules, setSubmodules] = useState([])
   const [anomaly, setAnomaly] = useState(null)
   const [queue, setQueue] = useState([])
+  const [logs, setLogs] = useState("")
 
   useEffect(() => {
     fetch('/system/status')
@@ -15,6 +16,13 @@ function App() {
       .then(res => res.json())
       .then(data => setAnomaly(data))
       .catch(err => console.error("Failed to fetch diff logic:", err))
+
+
+    // Fetch logs
+    fetch('/api/system/logs')
+      .then(res => res.json())
+      .then(data => setLogs(data.logs || ""))
+      .catch(err => console.error("Failed to fetch logs:", err))
 
     // Polling queue telemetry
     const interval = setInterval(() => {
@@ -100,6 +108,17 @@ function App() {
               ))}
             </ul>
           )}
+        </div>
+
+      </div>
+      <div className="mt-8">
+
+        {/* Backend Logs */}
+        <div className="bg-gray-800 p-6 rounded-lg shadow-lg col-span-3">
+          <h2 className="text-2xl font-semibold mb-4 text-blue-400" title="Live tail of the backend system logs.">Backend Logs</h2>
+          <pre className="bg-gray-950 p-4 rounded text-xs font-mono text-gray-300 h-48 overflow-y-auto">
+            {logs || "Loading logs..."}
+          </pre>
         </div>
 
       </div>
