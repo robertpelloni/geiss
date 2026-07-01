@@ -5,6 +5,7 @@ function App() {
   const [anomaly, setAnomaly] = useState(null)
   const [queue, setQueue] = useState([])
   const [logs, setLogs] = useState("")
+  const [apiKey, setApiKey] = useState("")
 
   useEffect(() => {
     fetch('/system/status')
@@ -61,6 +62,11 @@ function App() {
         {/* Shadow Pilot */}
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
           <h2 className="text-2xl font-semibold mb-4 text-yellow-400" title="Actively monitors the repository for massive structural changes or anomalies.">Shadow Pilot</h2>
+
+          <div className="mb-4">
+             <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Authentication</label>
+             <input type="password" value={apiKey} onChange={e => setApiKey(e.target.value)} className="w-full bg-gray-900 border border-gray-700 text-gray-200 text-sm px-3 py-2 rounded focus:outline-none focus:border-blue-500 transition-colors shadow-inner" placeholder="Enter JULES_API_KEY for destructive actions..." />
+          </div>
           {anomaly ? (
              <div>
                 <p className="text-sm text-gray-300 mb-2">Monitors git diffs for automated refactoring anomalies.</p>
@@ -71,7 +77,7 @@ function App() {
                     <p className="text-red-400 font-bold">WARNING: {anomaly.warning}</p>
                     <button
                       onClick={() => {
-                        fetch('/api/shadow/autofix', { method: 'POST', headers: { 'X-API-KEY': '' } })
+                        fetch('/api/shadow/autofix', { method: 'POST', headers: { 'X-API-KEY': apiKey } })
                           .then(res => res.json())
                           .then(data => alert(data.message))
                           .catch(err => alert("Auto-fix trigger failed."));
