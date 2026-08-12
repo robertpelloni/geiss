@@ -1,5 +1,10 @@
-__pycache__/
-*.py[cod]
-*$py.class
-backend-go/jules-backend
-node_modules/
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
