@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
+	"time"
 	"gorm.io/gorm"
 	"gorm.io/driver/sqlite"
 )
@@ -139,6 +140,75 @@ func TestDriftDetectionHandler(t *testing.T) {
 	if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
 		t.Fatal(err)
 	}
+}
+
+func TestSystemTrayStatusHandler(t *testing.T) {
+	req, err := http.NewRequest("GET", "/api/system/tray", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(systemTrayStatusHandler)
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	var resp SystemTrayStatus
+	if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
+		t.Fatal(err)
+	}
+
+	if !resp.Active {
+		t.Errorf("expected tray to be active")
+	}
+}
+
+func TestSystemShutdownHandler(t *testing.T) {
+	trayMu.Lock()
+	oldExit := exitFunc
+	exitCalled := make(chan bool, 1)
+	exitFunc = func(code int) {
+		exitCalled <- true
+	}
+	trayMu.Unlock()
+
+	req, err := http.NewRequest("POST", "/api/system/shutdown", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(systemShutdownHandler)
+
+	handler.ServeHTTP(rr, req)
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	var resp TrayActionResponse
+	if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
+		t.Fatal(err)
+	}
+
+	if !resp.Success {
+		t.Errorf("expected success to be true")
+	}
+
+	select {
+	case <-exitCalled:
+		// success
+	case <-time.After(500 * time.Millisecond):
+		t.Errorf("expected exitFunc to be called")
+	}
+
+	trayMu.Lock()
+	exitFunc = oldExit
+	trayMu.Unlock()
 }
 
 func TestPruneSubmodulesHandler(t *testing.T) {

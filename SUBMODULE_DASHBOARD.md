@@ -1,10 +1,10 @@
 # Omni-Workspace Submodule Dashboard
 
-*Last updated: 2026-06-30 05:59:07*
+*Last updated: 2026-11-08 07:18:47*
 
 | Submodule | Branch | Commit | Status |
 | --- | --- | --- | --- |
-| `aios` | `main` | `200a291` | Clean |
-| `bobmani` | `main` | `1cf61c2` | Clean |
-| `borg` | `main` | `313d1af` | Clean |
-| `fwber` | `main` | `c88cc06` | Clean |
+| `aios` | `main` | `ad9de6c0` | Dirty |
+| `bobmani` | `main` | `0a3aa31` | Dirty |
+| `borg` | `HEAD` | `964a130` | Clean |
+| `fwber` | `HEAD` | `f341799` | Dirty |

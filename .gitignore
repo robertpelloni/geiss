@@ -8,3 +8,9 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 _deps
+node_modules/
+*.log
+*.db
+jules-backend
+__pycache__/
+.cache/

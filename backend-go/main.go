@@ -21,6 +21,10 @@ func main() {
 	http.HandleFunc("/api/system/audit", authMiddleware(uiAuditorHandler))
 	http.HandleFunc("/api/system/telemetry", telemetryStandardizerHandler)
 	http.HandleFunc("/api/system/logs", logTailerHandler)
+	http.HandleFunc("/api/system/refactor", globalSearchAndReplaceHandler)
+	http.HandleFunc("/api/system/pipeline", deploymentPipelineHandler)
+	http.HandleFunc("/api/system/tray", systemTrayStatusHandler)
+	http.HandleFunc("/api/system/shutdown", systemShutdownHandler)
 
 	// Start background daemons
 	startShadowDaemon()
