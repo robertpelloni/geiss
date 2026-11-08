@@ -142,6 +142,58 @@ func TestDriftDetectionHandler(t *testing.T) {
 	}
 }
 
+func TestDatabaseBackupHandler(t *testing.T) {
+	// Prepare test db file
+	_ = os.WriteFile("jules.db", []byte("test-database-content"), 0644)
+	defer os.Remove("jules.db")
+	defer os.RemoveAll("backups")
+
+	// Test POST: Create Backup
+	postReq, err := http.NewRequest("POST", "/api/system/backup", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	postRR := httptest.NewRecorder()
+	handler := http.HandlerFunc(databaseBackupHandler)
+	handler.ServeHTTP(postRR, postReq)
+
+	if status := postRR.Code; status != http.StatusOK {
+		t.Errorf("POST handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	var postResp BackupResponse
+	if err := json.NewDecoder(postRR.Body).Decode(&postResp); err != nil {
+		t.Fatal(err)
+	}
+
+	if !postResp.Success || len(postResp.Backups) == 0 {
+		t.Errorf("expected backup to succeed with at least 1 backup entry, got: %+v", postResp)
+	}
+
+	// Test GET: List Backups
+	getReq, err := http.NewRequest("GET", "/api/system/backup", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	getRR := httptest.NewRecorder()
+	handler.ServeHTTP(getRR, getReq)
+
+	if status := getRR.Code; status != http.StatusOK {
+		t.Errorf("GET handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	var getResp BackupResponse
+	if err := json.NewDecoder(getRR.Body).Decode(&getResp); err != nil {
+		t.Fatal(err)
+	}
+
+	if !getResp.Success || len(getResp.Backups) == 0 {
+		t.Errorf("expected GET backup list to return at least 1 backup entry, got: %+v", getResp)
+	}
+}
+
 func TestSystemTrayStatusHandler(t *testing.T) {
 	req, err := http.NewRequest("GET", "/api/system/tray", nil)
 	if err != nil {

@@ -31,6 +31,10 @@ function App() {
   const [pipelineResult, setPipelineResult] = useState(null)
   const [pipelineLoading, setPipelineLoading] = useState(false)
 
+  // Database Backups
+  const [backups, setBackups] = useState([])
+  const [backupLoading, setBackupLoading] = useState(false)
+
   // Status Notification
   const [statusMessage, setStatusMessage] = useState("")
   const [activeTab, setActiveTab] = useState("all") // 'all', 'orchestration', 'submodules', 'telemetry'
@@ -68,11 +72,36 @@ function App() {
       .catch(err => console.error("Failed to fetch diff logic:", err))
   }
 
+  const fetchBackups = () => {
+    fetch('/api/system/backup')
+      .then(res => res.json())
+      .then(data => {
+        if (data.backups) setBackups(data.backups)
+      })
+      .catch(err => console.error("Failed to fetch backups:", err))
+  }
+
+  const handleCreateBackup = () => {
+    setBackupLoading(true)
+    fetch('/api/system/backup', { method: 'POST' })
+      .then(res => res.json())
+      .then(data => {
+        setBackupLoading(false)
+        notify(data.message)
+        if (data.backups) setBackups(data.backups)
+      })
+      .catch(() => {
+        setBackupLoading(false)
+        notify("Failed to create database backup snapshot.")
+      })
+  }
+
   useEffect(() => {
     fetchSubmodules()
     fetchAnomaly()
     fetchLogs()
     fetchTray()
+    fetchBackups()
 
     // Polling interval for queue telemetry & tray uptime
     const interval = setInterval(() => {
@@ -526,6 +555,48 @@ function App() {
                     ))}
                   </div>
                 )}
+              </div>
+
+              {/* Card 4: SQLite Database Backups */}
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col justify-between hover:border-slate-700 transition-colors">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-base font-semibold text-teal-400 flex items-center gap-2" title="Safely creates snapshot backups of jules.db to prevent data loss.">
+                      Database Backups
+                    </h3>
+                    <span className="text-[10px] uppercase font-mono px-2 py-0.5 bg-teal-950/80 text-teal-300 border border-teal-800 rounded">
+                      SQLite Snapshots
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-300 mb-3">
+                    Automated snapshots of the persistent SQLite task queue and memory state.
+                  </p>
+
+                  <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
+                    {backups.length === 0 ? (
+                      <p className="text-xs text-slate-500 italic py-2">No database backup snapshots yet.</p>
+                    ) : (
+                      backups.slice(0, 4).map((b, idx) => (
+                        <div key={idx} className="p-2 bg-slate-950 border border-slate-800 rounded-lg flex items-center justify-between text-[11px] font-mono">
+                          <span className="text-slate-300 truncate w-36" title={b.filename}>{b.filename}</span>
+                          <span className="text-slate-500">{Math.round(b.size_bytes / 1024)} KB</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between">
+                  <span className="text-[11px] text-slate-400">{backups.length} snapshot(s)</span>
+                  <button
+                    onClick={handleCreateBackup}
+                    disabled={backupLoading}
+                    className="bg-teal-600 hover:bg-teal-500 disabled:opacity-50 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs transition-colors shadow"
+                    title="Creates an instantaneous backup copy of jules.db"
+                  >
+                    {backupLoading ? "Backing up..." : "Create Backup"}
+                  </button>
+                </div>
               </div>
             </div>
           </section>

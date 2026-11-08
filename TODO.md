@@ -12,6 +12,6 @@ This document tracks granular short-term features, immediate bug fixes, and expl
 - [x] Provide graceful shutdown endpoint for servers and background daemons.
 
 ## Backlog
-- [ ] Automate database backups for `jules.db`.
+- [x] Automate database backups for `jules.db`.
 - [ ] Explore WebSockets for real-time `queue telemetry` instead of HTTP polling.
 - [ ] Set up end-to-end testing for the React application using Playwright or Cypress.

@@ -25,6 +25,7 @@ func main() {
 	http.HandleFunc("/api/system/pipeline", deploymentPipelineHandler)
 	http.HandleFunc("/api/system/tray", systemTrayStatusHandler)
 	http.HandleFunc("/api/system/shutdown", systemShutdownHandler)
+	http.HandleFunc("/api/system/backup", databaseBackupHandler)
 
 	// Start background daemons
 	startShadowDaemon()

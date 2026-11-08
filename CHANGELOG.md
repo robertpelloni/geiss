@@ -1,3 +1,9 @@
+## [1.0.40] - 2026-11-08
+### Added
+- **Automated Database Backups (`jules.db`)**: Added `/api/system/backup` GET and POST endpoints in `backend-go/backup.go` with timestamped snapshots in `backups/`.
+- **Interactive Backup Card**: Added Database Backups card in `src/App.jsx` with instant backup creation, snapshot history listing, and live size telemetry.
+- **Unit Tests**: Added `TestDatabaseBackupHandler` in `backend-go/main_test.go`.
+
 ## [1.0.39] - 2026-11-08
 ### Added
 - **System Tray Controller & Graceful Shutdown**: Added `/api/system/tray` (telemetry, uptime, platform health) and `/api/system/shutdown` (safe exit for daemons and Go server) in `backend-go/systray.go`.
