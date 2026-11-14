@@ -537,11 +537,11 @@ function App() {
                       Database Backups
                     </h3>
                     <span className="text-[10px] uppercase font-mono px-2 py-0.5 bg-teal-950/80 text-teal-300 border border-teal-800 rounded">
-                      SQLite Snapshots
+                      State Snapshots
                     </span>
                   </div>
                   <p className="text-xs text-slate-300 mb-3">
-                    Automated snapshots of the persistent SQLite task queue and memory state.
+                    Timestamped JSON snapshots of submodule sync state, stored in backend-go/backups/.
                   </p>
 
                   <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
@@ -813,10 +813,10 @@ function App() {
                       Task Queue Telemetry
                     </h3>
                     <span className="text-[10px] font-mono px-2 py-0.5 bg-purple-950 text-purple-300 border border-purple-800 rounded">
-                      SQLite Queue
+                      Task Queue
                     </span>
                   </div>
-                  <p className="text-xs text-slate-300 mb-3">Live task lifecycle persisted to SQLite database.</p>
+                  <p className="text-xs text-slate-300 mb-3">Live task lifecycle from the in-memory queue (polled every few seconds).</p>
 
                   <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
                     {queue.length === 0 ? (
