@@ -7,7 +7,9 @@ import (
 )
 
 func main() {
-		initDB()
+	// No database: the task queue is in-memory (queue.go). The former
+	// gorm/sqlite layer was write-only dead code and broke the build
+	// on current toolchains; it is archived as db.go.bak.
 	// Register API handlers
 	http.HandleFunc("/api/shadow/diff", shadowPilotHandler)
 	http.HandleFunc("/system/status", submoduleStatusHandler)
@@ -21,6 +23,10 @@ func main() {
 	http.HandleFunc("/api/system/audit", authMiddleware(uiAuditorHandler))
 	http.HandleFunc("/api/system/telemetry", telemetryStandardizerHandler)
 	http.HandleFunc("/api/system/logs", logTailerHandler)
+	http.HandleFunc("/api/system/pipeline", deploymentPipelineHandler)
+	http.HandleFunc("/api/system/refactor", globalSearchAndReplaceHandler)
+	http.HandleFunc("/api/system/server/status", serverStatusHandler)
+	http.HandleFunc("/api/system/server/shutdown", authMiddleware(serverShutdownHandler))
 
 	// Start background daemons
 	startShadowDaemon()

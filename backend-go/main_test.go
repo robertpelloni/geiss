@@ -5,21 +5,27 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"testing"
-	"gorm.io/gorm"
-	"gorm.io/driver/sqlite"
 )
 
-func setupTestDB() {
-	// Use an in-memory sqlite db for tests
-	_ = os.Remove("jules_test.db")
-	db, _ = gorm.Open(sqlite.Open("jules_test.db"), &gorm.Config{})
-	db.AutoMigrate(&Task{})
-}
+func setupTestDB() {}
 
-func teardownTestDB() {
-	_ = os.Remove("jules_test.db")
+func teardownTestDB() {}
+
+func TestServerStatusHandler(t *testing.T) {
+	req := httptest.NewRequest(http.MethodGet, "/api/system/server/status", nil)
+	rr := httptest.NewRecorder()
+	serverStatusHandler(rr, req)
+	if rr.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", rr.Code)
+	}
+	var resp serverStatusResponse
+	if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
+		t.Fatal(err)
+	}
+	if resp.Status != "online" || resp.PID == 0 {
+		t.Fatalf("unexpected payload: %+v", resp)
+	}
 }
 
 func TestCIAutoFixHandler(t *testing.T) {
