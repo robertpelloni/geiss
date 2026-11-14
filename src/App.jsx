@@ -303,37 +303,9 @@ function App() {
           </div>
         </div>
 
-        {/* Global Filter Tabs */}
-        <div className="flex items-center bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs font-medium">
-          <button
-            onClick={() => setActiveTab("all")}
-            className={`px-3 py-1.5 rounded-md transition-all ${activeTab === 'all' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
-            title="Consolidated view displaying all system sections seamlessly"
-          >
-            All Features
-          </button>
-          <button
-            onClick={() => setActiveTab("orchestration")}
-            className={`px-3 py-1.5 rounded-md transition-all ${activeTab === 'orchestration' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
-            title="Focus specifically on Autonomous Intelligence, AI Routing, and Mass Refactoring"
-          >
-            Orchestration & AI
-          </button>
-          <button
-            onClick={() => setActiveTab("submodules")}
-            className={`px-3 py-1.5 rounded-md transition-all ${activeTab === 'submodules' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
-            title="Manage git submodules, conflict resolution, drift status, and pipeline runs"
-          >
-            Ecosystem Repos
-          </button>
-          <button
-            onClick={() => setActiveTab("telemetry")}
-            className={`px-3 py-1.5 rounded-md transition-all ${activeTab === 'telemetry' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
-            title="Inspect real-time queue tasks and live backend system logs"
-          >
-            Telemetry & Logs
-          </button>
-        </div>
+        {/* Single-page layout: every section is always visible, ordered by
+            value. The former filter tabs only hid sections; 'all' is now the
+            only view, so no feature sits behind a subpage. */}
 
         {/* System Tray Daemon & Global Quit Server Controls */}
         <div className="flex items-center space-x-3 bg-slate-950 px-4 py-2 rounded-xl border border-slate-800">
