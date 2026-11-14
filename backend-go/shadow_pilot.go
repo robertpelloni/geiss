@@ -52,13 +52,23 @@ func monitorGitDiff() (*AnomalyReport, error) {
 	return report, nil
 }
 
+// The daemon below already rescans every 30s; the handler serves its
+// latest report instead of paying a full `git diff` (~4s) per request.
+var lastShadowReport *AnomalyReport
+
 func shadowPilotHandler(w http.ResponseWriter, r *http.Request) {
-	report, err := monitorGitDiff()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	report := lastShadowReport
+	if report == nil {
+		var err error
+		report, err = monitorGitDiff()
+		if err == nil {
+			lastShadowReport = report
+		}
+	}
+	if report == nil {
+		http.Error(w, "shadow scan unavailable", http.StatusInternalServerError)
 		return
 	}
-
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(report)
 }
@@ -69,7 +79,7 @@ func startShadowDaemon() {
 			report, err := monitorGitDiff()
 			if err != nil {
 				log.Printf("[SHADOW] Error monitoring diffs: %v", err)
-			} else if len(report.Files) > 0 {
+			} else if lastShadowReport = report; len(report.Files) > 0 {
 				log.Printf("[SHADOW] Detected modifications in %d files (Size: %db)", len(report.Files), report.DiffSize)
 				if report.Warning != "" {
 					log.Printf("[SHADOW ALERT] %s", report.Warning)
