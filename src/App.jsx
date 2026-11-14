@@ -31,7 +31,7 @@ export default function App() {
   const [apiKey, setApiKey] = useState('')
   const [result, setResult] = useState('')
   const [taskDesc, setTaskDesc] = useState('')
-  const [pipeSub, setPipeSub] = useState('geiss')
+  const [pipeSub, setPipeSub] = useState('borg')
   const [pipeEnv, setPipeEnv] = useState('staging')
   const [search, setSearch] = useState('')
   const [replace, setReplace] = useState('')
@@ -93,7 +93,7 @@ export default function App() {
         </Section>
 
         <Section title="5 · CI/CD Pipeline" desc="Runs build/test/deploy stages for a submodule, or generates its GitHub Actions workflow file." tip="POST /api/system/pipeline with {submodule, environment, generate}. generate=true writes .github/workflows/<name>_pipeline.yml instead of running stages.">
-          <label style={label}>Submodule<Tip text="Folder name under the bobsaver root, e.g. geiss, JWildfire, projectm." /></label>
+          <label style={label}>Submodule<Tip text="Nested submodule folder inside geiss/ (the backend resolves paths relative to geiss/): aios, bobmani, fwber or borg. Initialise it first with: git -C geiss submodule update --init <name>." /></label>
           <input style={input} value={pipeSub} onChange={e => setPipeSub(e.target.value)} />
           <label style={label}>Environment<Tip text="Deployment target label passed to the deploy stage. Defaults to staging." /></label>
           <input style={input} value={pipeEnv} onChange={e => setPipeEnv(e.target.value)} />
