@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"os/exec"
 	"strings"
+	"sync"
+	"time"
 )
 
 type SubmoduleStatus struct {
@@ -57,8 +59,31 @@ func checkSubmodules() ([]SubmoduleStatus, error) {
 	return statuses, nil
 }
 
-func submoduleStatusHandler(w http.ResponseWriter, r *http.Request) {
+// Why: `git submodule status` takes ~4-9s on this tree, which made the
+// dashboard panel look broken. Cache the last good scan for 30s; the
+// data changes only on git operations, never faster than that matters.
+var statusCache struct {
+	sync.Mutex
+	at   time.Time
+	data []SubmoduleStatus
+}
+
+func cachedSubmodules() ([]SubmoduleStatus, error) {
+	statusCache.Lock()
+	defer statusCache.Unlock()
+	if statusCache.data != nil && time.Since(statusCache.at) < 30*time.Second {
+		return statusCache.data, nil
+	}
 	statuses, err := checkSubmodules()
+	if err != nil {
+		return nil, err
+	}
+	statusCache.data, statusCache.at = statuses, time.Now()
+	return statuses, nil
+}
+
+func submoduleStatusHandler(w http.ResponseWriter, r *http.Request) {
+	statuses, err := cachedSubmodules()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
