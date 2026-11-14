@@ -73,7 +73,7 @@ export default function App() {
         </Section>
 
         <Section title="2 · Submodule Health" desc="Sync state of JWildfire, MilkDrop3, projectm, electricsheep, geiss and apophysis-j, plus drift, prune and coverage scans." tip="GET /system/status · POST /api/system/dashboard · GET /api/system/drift · GET+POST /api/system/prune · GET /api/system/audit">
-          {submodules.length === 0 ? <p>No data — backend offline or submodules not initialised.</p> : <ul>{submodules.map((sm, i) => <li key={i}><code title={`Commit ${sm.commit}`}>{sm.path}</code> — {sm.status}</li>)}</ul>}
+          {submodules.length === 0 ? <p>Loading… (the git scan takes ~5s; if this persists, the backend is offline — see section 1.)</p> : <ul>{submodules.map((sm, i) => <li key={i}><code title={`Commit ${sm.commit}`}>{sm.path}</code> — {sm.status}</li>)}</ul>}
           <button style={btn} onClick={() => call('Dashboard', '/api/system/dashboard', { method: 'POST', headers: headers(), body: '{}' })}>Generate dashboard</button>{' '}
           <button style={btn} onClick={() => call('Drift', '/api/system/drift')}>Check drift</button>{' '}
           <button style={btn} onClick={() => call('Prune scan', '/api/system/prune')}>Prune scan</button>{' '}
