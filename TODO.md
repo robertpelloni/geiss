@@ -6,10 +6,12 @@ This document tracks granular short-term features, immediate bug fixes, and expl
 - [x] Migrate Python scripts into native Go counterparts (e.g. `scripts/task_router.py` -> `backend-go/task_router.go`).
 - [x] Ensure all API endpoints in `backend-go` are fully covered by unit tests.
 - [x] Add a visual log tailer component to the React app to display `backend-go` logs.
-- [ ] Connect the `Shadow Pilot` anomaly report to an explicit interactive form for immediate action.
+- [x] Connect the `Shadow Pilot` anomaly report to an explicit interactive form for immediate action.
 - [x] Create detailed tooltips across the React UI explaining each submodule status.
+- [x] Consolidate multi-page dashboard UI into a singular high-value page with system tray controls.
+- [x] Provide graceful shutdown endpoint for servers and background daemons.
 
 ## Backlog
-- [ ] Automate database backups for `jules.db`.
+- [x] Automate database backups for `jules.db`.
 - [ ] Explore WebSockets for real-time `queue telemetry` instead of HTTP polling.
 - [ ] Set up end-to-end testing for the React application using Playwright or Cypress.

@@ -25,8 +25,13 @@ func main() {
 	http.HandleFunc("/api/system/logs", logTailerHandler)
 	http.HandleFunc("/api/system/pipeline", deploymentPipelineHandler)
 	http.HandleFunc("/api/system/refactor", globalSearchAndReplaceHandler)
+	// Both shutdown paths: /api/system/server/* is used by scripts/system_tray.py,
+	// /api/system/shutdown + /api/system/tray by the upstream dashboard.
 	http.HandleFunc("/api/system/server/status", serverStatusHandler)
 	http.HandleFunc("/api/system/server/shutdown", authMiddleware(serverShutdownHandler))
+	http.HandleFunc("/api/system/tray", systemTrayStatusHandler)
+	http.HandleFunc("/api/system/shutdown", systemShutdownHandler)
+	http.HandleFunc("/api/system/backup", databaseBackupHandler)
 
 	// Start background daemons
 	startShadowDaemon()

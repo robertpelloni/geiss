@@ -1,131 +1,917 @@
 import { useEffect, useState } from 'react'
 
-// Single-page consolidated dashboard. Every backend route is wired here,
-// ordered by value: server control first, then submodule health, live
-// monitoring, AI routing, pipeline, maintenance tools, and logs last.
-// The ⓘ marker carries the tooltip (title) for each control.
-const Tip = ({ text }) => <span title={text} style={{ cursor: 'help', color: '#7dd3fc' }}> ⓘ</span>
-
-function Section({ title, desc, tip, children }) {
-  return (
-    <section style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 8, padding: 20 }}>
-      <h2 style={{ margin: '0 0 4px', fontSize: 20, color: '#e2e8f0' }}>{title}<Tip text={tip} /></h2>
-      <p style={{ margin: '0 0 14px', fontSize: 13, color: '#cbd5e1' }}>{desc}</p>
-      {children}
-    </section>
-  )
-}
-
-const btn = { background: '#0f766e', color: '#fff', border: 0, borderRadius: 6, padding: '7px 14px', cursor: 'pointer', fontWeight: 600 }
-const btnDanger = { ...btn, background: '#b91c1c' }
-const input = { width: '100%', boxSizing: 'border-box', background: '#0f172a', border: '1px solid #475569', color: '#e2e8f0', borderRadius: 6, padding: '7px 9px', marginBottom: 8 }
-const label = { display: 'block', fontSize: 12, fontWeight: 600, color: '#cbd5e1', marginBottom: 4 }
-const out = { background: '#020617', borderRadius: 6, padding: 10, fontSize: 12, overflow: 'auto', maxHeight: 260, whiteSpace: 'pre-wrap' }
-
-export default function App() {
-  const [server, setServer] = useState(null)
+function App() {
+  // Core System Telemetry States
   const [submodules, setSubmodules] = useState([])
   const [anomaly, setAnomaly] = useState(null)
   const [queue, setQueue] = useState([])
-  const [logs, setLogs] = useState('')
-  const [apiKey, setApiKey] = useState('')
-  const [result, setResult] = useState('')
-  const [taskDesc, setTaskDesc] = useState('')
-  const [pipeSub, setPipeSub] = useState('borg')
-  const [pipeEnv, setPipeEnv] = useState('staging')
-  const [search, setSearch] = useState('')
-  const [replace, setReplace] = useState('')
-  const [dryRun, setDryRun] = useState(true)
-  const [targetDir, setTargetDir] = useState('')
+  const [logs, setLogs] = useState("")
+  const [apiKey, setApiKey] = useState("")
+  const [trayStatus, setTrayStatus] = useState(null)
 
-  const headers = () => (apiKey ? { 'Content-Type': 'application/json', 'X-API-KEY': apiKey } : { 'Content-Type': 'application/json' })
-  const call = async (name, url, opts = {}) => {
-    try {
-      const r = await fetch(url, opts)
-      const t = await r.text()
-      setResult(`${name} → HTTP ${r.status}\n${t.slice(0, 4000)}`)
-    } catch (e) { setResult(`${name} → FAILED: ${e.message} (is the Go backend running on :8080?)`) }
+  // Interactive Form States
+  const [taskInput, setTaskInput] = useState("")
+  const [taskRoutingResult, setTaskRoutingResult] = useState(null)
+  const [routingLoading, setRoutingLoading] = useState(false)
+
+  const [conflicts, setConflicts] = useState([])
+  const [driftReport, setDriftReport] = useState([])
+  const [auditReport, setAuditReport] = useState([])
+
+  // Global Refactoring
+  const [searchStr, setSearchStr] = useState("")
+  const [replaceStr, setReplaceStr] = useState("")
+  const [dryRun, setDryRun] = useState(true)
+  const [refactorResult, setRefactorResult] = useState(null)
+  const [refactorLoading, setRefactorLoading] = useState(false)
+
+  // Pipeline Generator & Runner
+  const [pipelineSubmodule, setPipelineSubmodule] = useState("")
+  const [pipelineEnv, setPipelineEnv] = useState("staging")
+  const [pipelineResult, setPipelineResult] = useState(null)
+  const [pipelineLoading, setPipelineLoading] = useState(false)
+
+  // Database Backups
+  const [backups, setBackups] = useState([])
+  const [backupLoading, setBackupLoading] = useState(false)
+
+  // Status Notification
+  const [statusMessage, setStatusMessage] = useState("")
+  const [activeTab, setActiveTab] = useState("all") // 'all', 'orchestration', 'submodules', 'telemetry'
+
+  const notify = (msg) => {
+    setStatusMessage(msg)
+    setTimeout(() => setStatusMessage(""), 4000)
   }
-  const refreshCore = () => {
-    fetch('/api/system/server/status').then(r => r.json()).then(setServer).catch(() => setServer(null))
-    fetch('/system/status').then(r => r.json()).then(d => setSubmodules(d || [])).catch(() => {})
-    fetch('/api/shadow/diff').then(r => r.json()).then(setAnomaly).catch(() => {})
-    fetch('/api/system/logs').then(r => r.json()).then(d => setLogs(d.logs || '')).catch(() => {})
+
+  const fetchTray = () => {
+    fetch('/api/system/tray')
+      .then(res => res.json())
+      .then(data => setTrayStatus(data))
+      .catch(err => console.error("Tray status error:", err))
   }
+
+  const fetchLogs = () => {
+    fetch('/api/system/logs')
+      .then(res => res.json())
+      .then(data => setLogs(data.logs || ""))
+      .catch(err => console.error("Failed to fetch logs:", err))
+  }
+
+  const fetchSubmodules = () => {
+    fetch('/system/status')
+      .then(res => res.json())
+      .then(data => setSubmodules(data || []))
+      .catch(err => console.error("Failed to fetch submodules:", err))
+  }
+
+  const fetchAnomaly = () => {
+    fetch('/api/shadow/diff')
+      .then(res => res.json())
+      .then(data => setAnomaly(data))
+      .catch(err => console.error("Failed to fetch diff logic:", err))
+  }
+
+  const fetchBackups = () => {
+    fetch('/api/system/backup')
+      .then(res => res.json())
+      .then(data => {
+        if (data.backups) setBackups(data.backups)
+      })
+      .catch(err => console.error("Failed to fetch backups:", err))
+  }
+
+  const handleCreateBackup = () => {
+    setBackupLoading(true)
+    fetch('/api/system/backup', { method: 'POST' })
+      .then(res => res.json())
+      .then(data => {
+        setBackupLoading(false)
+        notify(data.message)
+        if (data.backups) setBackups(data.backups)
+      })
+      .catch(() => {
+        setBackupLoading(false)
+        notify("Failed to create database backup snapshot.")
+      })
+  }
+
   useEffect(() => {
-    refreshCore()
-    const id = setInterval(() => fetch('/api/queue/telemetry').then(r => r.json()).then(d => setQueue(d || [])).catch(() => {}), 3000)
-    return () => clearInterval(id)
+    fetchSubmodules()
+    fetchAnomaly()
+    fetchLogs()
+    fetchTray()
+    fetchBackups()
+
+    // Polling interval for queue telemetry & tray uptime
+    const interval = setInterval(() => {
+      fetch('/api/queue/telemetry')
+        .then(res => res.json())
+        .then(data => setQueue(data || []))
+        .catch(err => console.error("Failed to fetch queue telemetry:", err))
+      fetchTray()
+    }, 2500)
+
+    return () => clearInterval(interval)
   }, [])
 
+  // Auto-Fix trigger
+  const handleTriggerAutoFix = () => {
+    fetch('/api/shadow/autofix', { method: 'POST', headers: { 'X-API-KEY': apiKey } })
+      .then(res => res.json())
+      .then(data => {
+        notify(data.message || "Auto-fix routine finished.")
+        fetchAnomaly()
+      })
+      .catch(() => notify("Auto-fix trigger failed."))
+  }
+
+  // Task Route trigger
+  const handleRouteTask = (e) => {
+    e.preventDefault()
+    if (!taskInput.trim()) return
+    setRoutingLoading(true)
+    fetch('/api/tasks/route', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ task_description: taskInput })
+    })
+      .then(res => res.json())
+      .then(data => {
+        setTaskRoutingResult(data)
+        setRoutingLoading(false)
+        notify(`Task assigned to ${data.assigned_model}`)
+      })
+      .catch(() => {
+        setRoutingLoading(false)
+        notify("Failed to route task.")
+      })
+  }
+
+  // Conflict Resolution check
+  const handleCheckConflicts = () => {
+    fetch('/api/conflicts/resolve')
+      .then(res => res.json())
+      .then(data => {
+        setConflicts(data || [])
+        notify(`Conflict check complete. Found ${data?.length || 0} items.`)
+      })
+      .catch(() => notify("Error running conflict check."))
+  }
+
+  // Drift Detection check
+  const handleCheckDrift = () => {
+    fetch('/api/system/drift')
+      .then(res => res.json())
+      .then(data => {
+        setDriftReport(data || [])
+        notify(`Drift scan complete. ${data?.length || 0} submodules analyzed.`)
+      })
+      .catch(() => notify("Error scanning git drift."))
+  }
+
+  // Prune broken submodules
+  const handlePruneSubmodules = () => {
+    fetch('/api/system/prune')
+      .then(res => res.json())
+      .then(data => {
+        notify(`Prune scan complete: ${data?.length || 0} modules verified.`)
+        fetchSubmodules()
+      })
+      .catch(() => notify("Error pruning submodules."))
+  }
+
+  // Generate Dashboard
+  const handleGenerateDashboard = () => {
+    fetch('/api/system/dashboard', {
+      method: 'POST',
+      headers: { 'X-API-KEY': apiKey }
+    })
+      .then(res => res.json())
+      .then(data => notify(data.message || "Dashboard regenerated."))
+      .catch(() => notify("Failed to regenerate dashboard. Verify API Key."))
+  }
+
+  // Global Search and Replace
+  const handleGlobalRefactor = (e) => {
+    e.preventDefault()
+    if (!searchStr) return
+    setRefactorLoading(true)
+    fetch('/api/system/refactor', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ search_str: searchStr, replace_str: replaceStr, dry_run: dryRun })
+    })
+      .then(res => res.json())
+      .then(data => {
+        setRefactorResult(data)
+        setRefactorLoading(false)
+        notify(`Refactor execution: ${data.modified_files} files affected.`)
+      })
+      .catch(() => {
+        setRefactorLoading(false)
+        notify("Error during search and replace execution.")
+      })
+  }
+
+  // Run or Generate Pipeline
+  const handlePipelineAction = (generate) => {
+    if (!pipelineSubmodule) {
+      notify("Please select or enter a submodule name.")
+      return
+    }
+    setPipelineLoading(true)
+    fetch('/api/system/pipeline', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-API-KEY': apiKey },
+      body: JSON.stringify({ submodule: pipelineSubmodule, environment: pipelineEnv, generate })
+    })
+      .then(res => res.json())
+      .then(data => {
+        setPipelineResult(data)
+        setPipelineLoading(false)
+        notify(data.message)
+      })
+      .catch(() => {
+        setPipelineLoading(false)
+        notify("Pipeline operation failed.")
+      })
+  }
+
+  // UI Auditor
+  const handleRunAudit = () => {
+    fetch('/api/system/audit', {
+      headers: { 'X-API-KEY': apiKey }
+    })
+      .then(res => res.json())
+      .then(data => {
+        setAuditReport(data || [])
+        notify(`Audit finished: ${data?.length || 0} submodules analyzed.`)
+      })
+      .catch(() => notify("UI Auditor failed. Check JULES_API_KEY."))
+  }
+
+  // Standardize Telemetry
+  const handleStandardizeTelemetry = () => {
+    fetch('/api/system/telemetry', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ target_dir: "." })
+    })
+      .then(res => res.json())
+      .then(data => notify(`Telemetry standardized across ${data?.length || 0} repos.`))
+      .catch(() => notify("Telemetry standardizer failed."))
+  }
+
+  // Graceful Server Shutdown via System Tray
+  const handleQuitServers = () => {
+    if (window.confirm("Are you sure you want to shut down the Jules Autopilot Go backend and daemons?")) {
+      fetch('/api/system/shutdown', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          alert(data.message)
+          fetchTray()
+        })
+        .catch(() => alert("Shutdown call failed or server already stopped."))
+    }
+  }
+
   return (
-    <div style={{ background: '#0f172a', color: '#f1f5f9', minHeight: '100vh', padding: 24, fontFamily: 'system-ui, sans-serif' }}>
-      <h1 style={{ margin: '0 0 4px', fontSize: 26 }}>Bobsaver Command Center</h1>
-      <p style={{ color: '#cbd5e1', marginTop: 0 }}>One page for every backend feature. Highest-value controls first; destructive actions need the API key.</p>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(340px,1fr))', gap: 16 }}>
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-blue-600 selection:text-white">
+      {/* Top Banner / Toast Notification */}
+      {statusMessage && (
+        <div className="fixed top-4 right-4 z-50 bg-blue-600 text-white px-5 py-3 rounded-lg shadow-2xl flex items-center space-x-3 transition-transform duration-300 ease-out border border-blue-400">
+          <span className="font-bold">⚡ Status:</span>
+          <span>{statusMessage}</span>
+        </div>
+      )}
 
-        <Section title="1 · Server & System Tray" desc="Start here: is the backend alive, and how do you stop it? The tray icon (scripts/system_tray.py) offers the same Open / Status / Logs / Quit Servers menu." tip="GET /api/system/server/status · POST /api/system/server/shutdown (API key required when JULES_API_KEY is set). Tray: python scripts/system_tray.py">
-          <p>{server ? `Online — PID ${server.pid}, uptime ${server.uptime_sec}s, since ${server.started_at}` : 'Offline or unreachable — start: cd geiss/backend-go && go run .'}</p>
-          <label style={label}>JULES_API_KEY<Tip text="Required for shutdown, dashboard generation and UI audit when the server was started with JULES_API_KEY set." /></label>
-          <input style={input} type="password" value={apiKey} onChange={e => setApiKey(e.target.value)} placeholder="API key for destructive actions" />
-          <button style={btn} onClick={refreshCore}>Refresh status</button>{' '}
-          <button style={btnDanger} title="Gracefully stops the Go backend (same action as tray Quit Servers & Exit)" onClick={() => { if (confirm('Shut down the backend server?')) call('Shutdown', '/api/system/server/shutdown', { method: 'POST', headers: headers(), body: '{}' }) }}>Quit servers</button>
-        </Section>
+      {/* Main Top Header: High-Level Autopilot Telemetry & System Tray Control */}
+      <header className="bg-slate-900 border-b border-slate-800 px-6 py-4 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-40 shadow-md">
+        <div className="flex items-center space-x-4">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-purple-600 flex items-center justify-center font-black text-xl shadow-lg ring-2 ring-blue-500/30">
+            J
+          </div>
+          <div>
+            <h1 className="text-xl font-extrabold tracking-tight text-white flex items-center gap-2" title="Unified Autonomous Management Hub for Jules Autopilot and the Omni-Workspace">
+              Jules Autopilot
+              <span className="text-xs px-2 py-0.5 font-mono uppercase bg-blue-900/60 text-blue-300 border border-blue-700/50 rounded-full" title="Global architecture: Native Go Backend + Pure React 19 SPA">
+                Go-First v1.0.39
+              </span>
+            </h1>
+            <p className="text-xs text-slate-400">Autonomous Orchestration • Extreme Telemetry • Omnipresent Tray</p>
+          </div>
+        </div>
 
-        <Section title="2 · Submodule Health" desc="Sync state of JWildfire, MilkDrop3, projectm, electricsheep, geiss and apophysis-j, plus drift, prune and coverage scans." tip="GET /system/status · POST /api/system/dashboard · GET /api/system/drift · GET+POST /api/system/prune · GET /api/system/audit">
-          {submodules.length === 0 ? <p>Loading… (the git scan takes ~5s; if this persists, the backend is offline — see section 1.)</p> : <ul>{submodules.map((sm, i) => <li key={i}><code title={`Commit ${sm.commit}`}>{sm.path}</code> — {sm.status}</li>)}</ul>}
-          <button style={btn} onClick={() => call('Dashboard', '/api/system/dashboard', { method: 'POST', headers: headers(), body: '{}' })}>Generate dashboard</button>{' '}
-          <button style={btn} onClick={() => call('Drift', '/api/system/drift')}>Check drift</button>{' '}
-          <button style={btn} onClick={() => call('Prune scan', '/api/system/prune')}>Prune scan</button>{' '}
-          <button style={btn} onClick={() => call('UI audit', '/api/system/audit', { headers: headers() })}>UI audit</button>
-        </Section>
+        {/* Global Filter Tabs */}
+        <div className="flex items-center bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs font-medium">
+          <button
+            onClick={() => setActiveTab("all")}
+            className={`px-3 py-1.5 rounded-md transition-all ${activeTab === 'all' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+            title="Consolidated view displaying all system sections seamlessly"
+          >
+            All Features
+          </button>
+          <button
+            onClick={() => setActiveTab("orchestration")}
+            className={`px-3 py-1.5 rounded-md transition-all ${activeTab === 'orchestration' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+            title="Focus specifically on Autonomous Intelligence, AI Routing, and Mass Refactoring"
+          >
+            Orchestration & AI
+          </button>
+          <button
+            onClick={() => setActiveTab("submodules")}
+            className={`px-3 py-1.5 rounded-md transition-all ${activeTab === 'submodules' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+            title="Manage git submodules, conflict resolution, drift status, and pipeline runs"
+          >
+            Ecosystem Repos
+          </button>
+          <button
+            onClick={() => setActiveTab("telemetry")}
+            className={`px-3 py-1.5 rounded-md transition-all ${activeTab === 'telemetry' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'}`}
+            title="Inspect real-time queue tasks and live backend system logs"
+          >
+            Telemetry & Logs
+          </button>
+        </div>
 
-        <Section title="3 · Shadow Pilot & Queue" desc="Watches git diffs for runaway automated changes and shows the live in-memory task queue (polled every 3s)." tip="GET /api/shadow/diff · POST /api/shadow/autofix · GET /api/queue/telemetry">
-          {anomaly ? <p>Last scan {new Date(anomaly.timestamp).toLocaleString()} · diff {anomaly.diff_size_bytes} bytes{anomaly.warning ? ` · WARNING: ${anomaly.warning}` : ''}</p> : <p>Loading…</p>}
-          {anomaly?.warning && <button style={btnDanger} onClick={() => call('Auto-fix', '/api/shadow/autofix', { method: 'POST', headers: headers() })}>Trigger auto-fix</button>}
-          <ul>{queue.map((t, i) => <li key={i}><code>{t.ID}</code> {t.Name} — {t.Status}</li>)}</ul>
-        </Section>
+        {/* System Tray Daemon & Global Quit Server Controls */}
+        <div className="flex items-center space-x-3 bg-slate-950 px-4 py-2 rounded-xl border border-slate-800">
+          <div className="flex items-center space-x-2" title="OS System Tray Supervisor Daemon status">
+            <span className={`w-3 h-3 rounded-full animate-pulse ${trayStatus?.active ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+            <div className="text-left">
+              <div className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">System Tray</div>
+              <div className="text-xs font-mono font-medium text-slate-200">
+                {trayStatus ? `${trayStatus.platform} (${trayStatus.uptime_sec}s up)` : 'Connecting...'}
+              </div>
+            </div>
+          </div>
 
-        <Section title="4 · AI Task Routing" desc="Routes a task description to Claude (architecture/docs), Gemini (scanning/speed) or GPT (code/tests). Use it to coordinate work across models, alongside Edge CDP 9222 sessions." tip="POST /api/tasks/route with {task_description}. Keywords decide: doc/plan/refactor→Claude, scan/fast→Gemini, code/test/implement→GPT.">
-          <label style={label}>Task description<Tip text="Plain English. Include words like 'refactor', 'scan all repos' or 'implement and test' to steer routing." /></label>
-          <input style={input} value={taskDesc} onChange={e => setTaskDesc(e.target.value)} placeholder="e.g. refactor the dashboard and write tests" />
-          <button style={btn} onClick={() => call('Route task', '/api/tasks/route', { method: 'POST', headers: headers(), body: JSON.stringify({ task_description: taskDesc }) })}>Route task</button>
-        </Section>
+          <div className="h-6 w-px bg-slate-800" />
 
-        <Section title="5 · CI/CD Pipeline" desc="Runs build/test/deploy stages for a submodule, or generates its GitHub Actions workflow file." tip="POST /api/system/pipeline with {submodule, environment, generate}. generate=true writes .github/workflows/<name>_pipeline.yml instead of running stages.">
-          <label style={label}>Submodule<Tip text="Nested submodule folder inside geiss/ (the backend resolves paths relative to geiss/): aios, bobmani, fwber or borg. Initialise it first with: git -C geiss submodule update --init <name>." /></label>
-          <input style={input} value={pipeSub} onChange={e => setPipeSub(e.target.value)} />
-          <label style={label}>Environment<Tip text="Deployment target label passed to the deploy stage. Defaults to staging." /></label>
-          <input style={input} value={pipeEnv} onChange={e => setPipeEnv(e.target.value)} />
-          <button style={btn} onClick={() => call('Pipeline', '/api/system/pipeline', { method: 'POST', headers: headers(), body: JSON.stringify({ submodule: pipeSub, environment: pipeEnv, generate: false }) })}>Run pipeline</button>{' '}
-          <button style={btn} onClick={() => call('Generate workflow', '/api/system/pipeline', { method: 'POST', headers: headers(), body: JSON.stringify({ submodule: pipeSub, environment: pipeEnv, generate: true }) })}>Generate workflow</button>
-        </Section>
+          {/* Destructive / Auth API Key Input */}
+          <div className="relative">
+            <input
+              type="password"
+              value={apiKey}
+              onChange={e => setApiKey(e.target.value)}
+              placeholder="API Key..."
+              className="w-28 text-xs bg-slate-900 border border-slate-700 px-2 py-1 rounded text-slate-200 focus:outline-none focus:border-blue-500 focus:w-44 transition-all"
+              title="Enter JULES_API_KEY to unlock destructive actions (Auto-Fix, Dashboard Regen, UI Audit)"
+            />
+          </div>
 
-        <Section title="6 · Refactor & Telemetry" desc="Global search-and-replace across submodules (dry-run first) and injection of standard [OMNI] logging stubs into Python/JS files." tip="POST /api/system/refactor {search_str, replace_str, dry_run} · POST /api/system/telemetry {target_dir}. Telemetry writes files — review the report.">
-          <label style={label}>Search / Replace<Tip text="Literal text match across all submodules, skipping .git, node_modules and dist. Dry-run lists files without writing." /></label>
-          <input style={input} value={search} onChange={e => setSearch(e.target.value)} placeholder="search text" />
-          <input style={input} value={replace} onChange={e => setReplace(e.target.value)} placeholder="replace with" />
-          <label style={label}><input type="checkbox" checked={dryRun} onChange={e => setDryRun(e.target.checked)} /> Dry run<Tip text="On: only report matching files. Off: files are rewritten in place." /></label>
-          <button style={btn} onClick={() => call('Refactor', '/api/system/refactor', { method: 'POST', headers: headers(), body: JSON.stringify({ search_str: search, replace_str: replace, dry_run: dryRun }) })}>Run refactor</button>
-          <label style={label}>Telemetry target dir<Tip text="Submodule-relative folder to scan, e.g. geiss. Empty scans the whole workspace root." /></label>
-          <input style={input} value={targetDir} onChange={e => setTargetDir(e.target.value)} placeholder="e.g. geiss (optional)" />
-          <button style={btn} onClick={() => call('Telemetry', '/api/system/telemetry', { method: 'POST', headers: headers(), body: JSON.stringify({ target_dir: targetDir }) })}>Standardise telemetry</button>
-        </Section>
+          {/* Safe Quit Servers Button */}
+          <button
+            onClick={handleQuitServers}
+            className="bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white border border-rose-500/30 px-3 py-1 rounded text-xs font-bold transition-all flex items-center gap-1.5 shadow-sm"
+            title="Gracefully terminates the Go backend server, workers, and system tray supervisor safely."
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            Quit Server
+          </button>
+        </div>
+      </header>
 
-        <Section title="7 · Merge Conflicts" desc="Scans the workspace for unresolved git conflict markers and summarises each block." tip="GET /api/conflicts/resolve — read-only scan; resolve conflicts in git, then re-run to confirm clean.">
-          <button style={btn} onClick={() => call('Conflicts', '/api/conflicts/resolve')}>Scan for conflicts</button>
-        </Section>
+      {/* Main Single-Page Dashboard Layout */}
+      <main className="flex-1 p-6 space-y-8 max-w-7xl mx-auto w-full">
 
-        <Section title="8 · Action Result" desc="Raw response of the last button you pressed, so nothing happens silently." tip="Every control on this page writes its HTTP status and response body here.">
-          <pre style={out}>{result || 'No action yet — press any button above.'}</pre>
-        </Section>
-      </div>
+        {/* SECTION 1: HIGHEST-VALUE ORCHESTRATION & AUTONOMY (Always visible or in Orchestration tab) */}
+        {(activeTab === 'all' || activeTab === 'orchestration') && (
+          <section className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-blue-500" />
+                  Primary Orchestration & Autonomous Intelligence
+                </h2>
+                <p className="text-xs text-slate-400">High-priority automated decision making, structural diff monitoring, and AI multi-model routing.</p>
+              </div>
+            </div>
 
-      <section style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 8, padding: 20, marginTop: 16 }}>
-        <h2 style={{ margin: '0 0 4px', fontSize: 20 }}>Backend Logs<Tip text="GET /api/system/logs — tail of backend log output. Refresh from section 1." /></h2>
-        <p style={{ fontSize: 13, color: '#cbd5e1' }}>If this is empty while the server shows Online, the backend has produced no log output yet.</p>
-        <pre style={out}>{logs || 'Loading logs…'}</pre>
-      </section>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Card 1: Shadow Pilot & Anomaly Auto-Fix */}
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col justify-between hover:border-slate-700 transition-colors">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-base font-semibold text-amber-400 flex items-center gap-2" title="Background daemon monitoring git diffs for mass automated refactoring anomalies.">
+                      Shadow Pilot Sentinel
+                    </h3>
+                    <span className="text-[10px] uppercase font-mono px-2 py-0.5 bg-amber-950/80 text-amber-300 border border-amber-800 rounded">
+                      Realtime Sentinel
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-300 mb-4">
+                    Continuously calculates worktree byte diffs to prevent regressions and accidental code overwrites.
+                  </p>
+
+                  {anomaly ? (
+                    <div className="space-y-2 bg-slate-950 p-3 rounded-xl border border-slate-800/80 text-xs font-mono">
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Diff Size:</span>
+                        <span className="text-slate-200 font-bold">{anomaly.diff_size_bytes} bytes</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Last Scan:</span>
+                        <span className="text-slate-300">{new Date(anomaly.timestamp).toLocaleTimeString()}</span>
+                      </div>
+                      {anomaly.warning ? (
+                        <div className="mt-2 p-2.5 bg-rose-950/40 border border-rose-500/50 rounded-lg text-rose-300">
+                          <p className="font-bold flex items-center gap-1">⚠️ {anomaly.warning}</p>
+                          <p className="text-[11px] text-rose-200 mt-1">Automated mass refactor or git divergence flagged.</p>
+                        </div>
+                      ) : (
+                        <div className="mt-1 text-emerald-400 text-[11px]">✓ Worktree delta within safe autonomous thresholds.</div>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-500 animate-pulse">Syncing sentinel telemetry...</p>
+                  )}
+                </div>
+
+                <div className="mt-4 pt-4 border-t border-slate-800/80 flex items-center justify-between">
+                  <span className="text-[11px] text-slate-400" title="Trigger self-healing CI fix routine">CI Anomaly Auto-Fix</span>
+                  <button
+                    onClick={handleTriggerAutoFix}
+                    className="bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs transition-colors shadow"
+                    title="Directly executes CI pipeline auto-fix in backend-go"
+                  >
+                    Trigger Auto-Fix
+                  </button>
+                </div>
+              </div>
+
+              {/* Card 2: Centralized Task Router */}
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col justify-between hover:border-slate-700 transition-colors">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-base font-semibold text-indigo-400 flex items-center gap-2" title="Assigns complex developer tasks to specialized models (Claude 3.5 Sonnet, Gemini 1.5 Pro, GPT-4o).">
+                      AI Model Task Router
+                    </h3>
+                    <span className="text-[10px] uppercase font-mono px-2 py-0.5 bg-indigo-950/80 text-indigo-300 border border-indigo-800 rounded">
+                      Model Orchestrator
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-300 mb-3">
+                    Evaluates task keywords and computational requirements to route requests to the best AI model.
+                  </p>
+
+                  <form onSubmit={handleRouteTask} className="space-y-2">
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={taskInput}
+                        onChange={e => setTaskInput(e.target.value)}
+                        placeholder="e.g., Refactor backend telemetry or write tests..."
+                        className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+                        title="Describe any engineering task to discover optimal AI model allocation."
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={routingLoading}
+                      className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-semibold py-1.5 rounded-lg text-xs transition-colors shadow"
+                    >
+                      {routingLoading ? "Analyzing Task Complexity..." : "Route Task to Model"}
+                    </button>
+                  </form>
+                </div>
+
+                {taskRoutingResult && (
+                  <div className="mt-3 p-3 bg-slate-950 border border-indigo-500/30 rounded-xl text-xs space-y-1">
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-400">Assigned Model:</span>
+                      <span className="font-bold text-indigo-300 font-mono px-2 py-0.5 bg-indigo-950 border border-indigo-700 rounded">
+                        {taskRoutingResult.assigned_model}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-300 mt-1"><span className="text-slate-400">Rationale:</span> {taskRoutingResult.reason}</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Card 3: Mass Global Search & Replace */}
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col justify-between hover:border-slate-700 transition-colors">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-base font-semibold text-emerald-400 flex items-center gap-2" title="Executes high-performance text replacements across all 100+ submodules in the Omni-Workspace.">
+                      Global Code Refactor
+                    </h3>
+                    <span className="text-[10px] uppercase font-mono px-2 py-0.5 bg-emerald-950/80 text-emerald-300 border border-emerald-800 rounded">
+                      Omni-Workspace
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-300 mb-3">
+                    Multi-repository mass refactoring tool. Test with dry-run before applying destructive edits.
+                  </p>
+
+                  <form onSubmit={handleGlobalRefactor} className="space-y-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        value={searchStr}
+                        onChange={e => setSearchStr(e.target.value)}
+                        placeholder="Search term..."
+                        className="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                        title="Search string across all workspace projects"
+                      />
+                      <input
+                        type="text"
+                        value={replaceStr}
+                        onChange={e => setReplaceStr(e.target.value)}
+                        placeholder="Replace with..."
+                        className="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                        title="Replacement target string"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between pt-1">
+                      <label className="flex items-center space-x-2 text-xs text-slate-300 cursor-pointer" title="Dry run lists files that will change without altering content on disk.">
+                        <input
+                          type="checkbox"
+                          checked={dryRun}
+                          onChange={e => setDryRun(e.target.checked)}
+                          className="rounded bg-slate-950 border-slate-700 text-emerald-600 focus:ring-0"
+                        />
+                        <span>Dry Run (Safe Preview)</span>
+                      </label>
+                      <button
+                        type="submit"
+                        disabled={refactorLoading}
+                        className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors shadow"
+                      >
+                        {refactorLoading ? "Scanning..." : "Execute"}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+
+                {refactorResult && (
+                  <div className="mt-3 p-3 bg-slate-950 border border-emerald-500/30 rounded-xl text-xs space-y-1 max-h-24 overflow-y-auto">
+                    <p className="text-emerald-300 font-bold">Affected: {refactorResult.modified_files} file(s)</p>
+                    {refactorResult.files?.map((f, idx) => (
+                      <div key={idx} className="font-mono text-[10px] text-slate-400 truncate">{f}</div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Card 4: SQLite Database Backups */}
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col justify-between hover:border-slate-700 transition-colors">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-base font-semibold text-teal-400 flex items-center gap-2" title="Safely creates snapshot backups of jules.db to prevent data loss.">
+                      Database Backups
+                    </h3>
+                    <span className="text-[10px] uppercase font-mono px-2 py-0.5 bg-teal-950/80 text-teal-300 border border-teal-800 rounded">
+                      SQLite Snapshots
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-300 mb-3">
+                    Automated snapshots of the persistent SQLite task queue and memory state.
+                  </p>
+
+                  <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
+                    {backups.length === 0 ? (
+                      <p className="text-xs text-slate-500 italic py-2">No database backup snapshots yet.</p>
+                    ) : (
+                      backups.slice(0, 4).map((b, idx) => (
+                        <div key={idx} className="p-2 bg-slate-950 border border-slate-800 rounded-lg flex items-center justify-between text-[11px] font-mono">
+                          <span className="text-slate-300 truncate w-36" title={b.filename}>{b.filename}</span>
+                          <span className="text-slate-500">{Math.round(b.size_bytes / 1024)} KB</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between">
+                  <span className="text-[11px] text-slate-400">{backups.length} snapshot(s)</span>
+                  <button
+                    onClick={handleCreateBackup}
+                    disabled={backupLoading}
+                    className="bg-teal-600 hover:bg-teal-500 disabled:opacity-50 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs transition-colors shadow"
+                    title="Creates an instantaneous backup copy of jules.db"
+                  >
+                    {backupLoading ? "Backing up..." : "Create Backup"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* SECTION 2: ECOSYSTEM MONITOR & SUBMODULE MANAGEMENT */}
+        {(activeTab === 'all' || activeTab === 'submodules') && (
+          <section className="space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                  Ecosystem Repositories & Submodule Synchronization
+                </h2>
+                <p className="text-xs text-slate-400">Status, drift detection, conflict resolution, and automated CI/CD pipeline triggers.</p>
+              </div>
+
+              {/* Submodule Action Buttons */}
+              <div className="flex flex-wrap gap-2 text-xs">
+                <button
+                  onClick={handleCheckDrift}
+                  className="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-lg text-slate-200 transition-colors font-medium flex items-center gap-1"
+                  title="Identifies submodules that have fallen behind their upstream remote repositories."
+                >
+                  Detect Drift
+                </button>
+                <button
+                  onClick={handleCheckConflicts}
+                  className="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-lg text-slate-200 transition-colors font-medium flex items-center gap-1"
+                  title="Scans for unmerged git conflicts and applies feature-preserving resolution routines."
+                >
+                  Resolve Conflicts
+                </button>
+                <button
+                  onClick={handlePruneSubmodules}
+                  className="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-lg text-slate-200 transition-colors font-medium flex items-center gap-1"
+                  title="Safely cleans up stale or orphaned submodule pointers."
+                >
+                  Prune Broken
+                </button>
+                <button
+                  onClick={handleGenerateDashboard}
+                  className="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg font-medium transition-colors shadow"
+                  title="Rebuilds SUBMODULE_DASHBOARD.md across all registered submodules."
+                >
+                  Regenerate Dashboard
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Submodule Table (2 cols wide on desktop) */}
+              <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-base font-semibold text-slate-200">Active Submodules ({submodules.length})</h3>
+                  <button onClick={fetchSubmodules} className="text-xs text-blue-400 hover:underline">Refresh</button>
+                </div>
+
+                <div className="overflow-x-auto max-h-72 overflow-y-auto border border-slate-800 rounded-xl">
+                  <table className="w-full text-left text-xs font-mono">
+                    <thead className="bg-slate-950 text-slate-400 border-b border-slate-800 sticky top-0">
+                      <tr>
+                        <th className="px-4 py-2.5">Submodule Path</th>
+                        <th className="px-4 py-2.5">Upstream State</th>
+                        <th className="px-4 py-2.5 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/60 bg-slate-900/50">
+                      {submodules.length === 0 ? (
+                        <tr>
+                          <td colSpan="3" className="px-4 py-6 text-center text-slate-500 font-sans">
+                            No submodules detected or backend endpoint unreachable.
+                          </td>
+                        </tr>
+                      ) : (
+                        submodules.map((sm, idx) => (
+                          <tr key={idx} className="hover:bg-slate-800/50 transition-colors">
+                            <td className="px-4 py-2.5 font-medium text-slate-200" title={`Path: ${sm.path}`}>
+                              {sm.path}
+                            </td>
+                            <td className="px-4 py-2.5">
+                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${sm.status === 'Synchronized' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800'}`}>
+                                {sm.status}
+                              </span>
+                            </td>
+                            <td className="px-4 py-2.5 text-right font-sans">
+                              <button
+                                onClick={() => setPipelineSubmodule(sm.path)}
+                                className="text-blue-400 hover:text-blue-300 text-xs font-semibold mr-2"
+                                title="Target this submodule for CI/CD actions"
+                              >
+                                Select
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Submodule Drift / Conflict Results Panel if triggered */}
+                {(driftReport.length > 0 || conflicts.length > 0) && (
+                  <div className="mt-4 p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs space-y-2">
+                    {driftReport.length > 0 && (
+                      <div>
+                        <div className="font-bold text-amber-400 mb-1">Drift Scan Results:</div>
+                        <div className="grid grid-cols-2 gap-2 max-h-24 overflow-y-auto">
+                          {driftReport.map((d, i) => (
+                            <div key={i} className="text-slate-300 font-mono text-[11px] truncate">
+                              • {d.submodule}: <span className={d.drift_detected ? "text-rose-400" : "text-emerald-400"}>{d.drift_detected ? "Diverged" : "Up-to-date"}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {conflicts.length > 0 && (
+                      <div className="pt-2 border-t border-slate-800">
+                        <div className="font-bold text-rose-400 mb-1">Conflicts Handled:</div>
+                        {conflicts.map((c, i) => (
+                          <div key={i} className="text-slate-300 text-[11px]">• {c.submodule}: {c.action_taken}</div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Submodule CI/CD Deployment Pipeline Runner */}
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-base font-semibold text-cyan-400" title="Generates GitHub Actions CI/CD workflows and triggers stage verification.">
+                      CI/CD Pipeline Dispatcher
+                    </h3>
+                    <span className="text-[10px] uppercase font-mono px-2 py-0.5 bg-cyan-950 text-cyan-300 border border-cyan-800 rounded">
+                      GitHub Actions
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-300 mb-4">
+                    Deploy or auto-generate workflow specs (`.github/workflows/`) for any registered submodule.
+                  </p>
+
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-[11px] text-slate-400 font-medium mb-1">Target Submodule</label>
+                      <input
+                        type="text"
+                        value={pipelineSubmodule}
+                        onChange={e => setPipelineSubmodule(e.target.value)}
+                        placeholder="e.g., aios or bobmani"
+                        className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500 font-mono"
+                        title="Submodule folder name to operate on"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] text-slate-400 font-medium mb-1">Deployment Environment</label>
+                      <select
+                        value={pipelineEnv}
+                        onChange={e => setPipelineEnv(e.target.value)}
+                        className="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-cyan-500"
+                      >
+                        <option value="staging">Staging</option>
+                        <option value="production">Production</option>
+                        <option value="local">Local Dry-Run</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 pt-4 border-t border-slate-800 flex gap-2">
+                  <button
+                    onClick={() => handlePipelineAction(false)}
+                    disabled={pipelineLoading}
+                    className="flex-1 bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 text-slate-950 font-bold py-2 rounded-lg text-xs transition-colors shadow"
+                    title="Executes build, test, and deploy stages"
+                  >
+                    Run Pipeline
+                  </button>
+                  <button
+                    onClick={() => handlePipelineAction(true)}
+                    disabled={pipelineLoading}
+                    className="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-3 py-2 rounded-lg text-xs font-medium transition-colors"
+                    title="Generates a .github/workflows/<submodule>_pipeline.yml workflow file"
+                  >
+                    Gen Workflow
+                  </button>
+                </div>
+
+                {pipelineResult && (
+                  <div className={`mt-3 p-2.5 rounded-lg text-xs border ${pipelineResult.success ? 'bg-emerald-950/40 border-emerald-600/40 text-emerald-300' : 'bg-rose-950/40 border-rose-600/40 text-rose-300'}`}>
+                    <p className="font-semibold">{pipelineResult.message}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* SECTION 3: TELEMETRY & SYSTEM OBSERVABILITY */}
+        {(activeTab === 'all' || activeTab === 'telemetry') && (
+          <section className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-purple-500" />
+                  Realtime Telemetry & Observability
+                </h2>
+                <p className="text-xs text-slate-400">Database-backed asynchronous task queues, system audit status, and live Go server logs.</p>
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={handleRunAudit}
+                  className="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-lg text-xs text-slate-300 transition-colors"
+                  title="Scans all submodules for missing UI representations (UI Auditor)"
+                >
+                  Run UI Audit
+                </button>
+                <button
+                  onClick={handleStandardizeTelemetry}
+                  className="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-lg text-xs text-slate-300 transition-colors"
+                  title="Injects standardized telemetry stubs into repositories"
+                >
+                  Standardize Telemetry
+                </button>
+                <button
+                  onClick={fetchLogs}
+                  className="bg-purple-600/20 hover:bg-purple-600 text-purple-300 hover:text-white border border-purple-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors"
+                >
+                  Refresh Logs
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Task Queue Telemetry */}
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-base font-semibold text-purple-400" title="GORM SQLite database task queue providing async background job execution.">
+                      Task Queue Telemetry
+                    </h3>
+                    <span className="text-[10px] font-mono px-2 py-0.5 bg-purple-950 text-purple-300 border border-purple-800 rounded">
+                      SQLite Queue
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-300 mb-3">Live task lifecycle persisted to SQLite database.</p>
+
+                  <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                    {queue.length === 0 ? (
+                      <p className="text-xs text-slate-500 italic py-4 text-center">No active tasks in the persistent queue.</p>
+                    ) : (
+                      queue.map((task, idx) => (
+                        <div key={idx} className="p-2.5 bg-slate-950 border border-slate-800 rounded-xl flex items-center justify-between text-xs hover:border-slate-700 transition-colors">
+                          <div>
+                            <span className="font-mono text-[10px] text-slate-500">#{task.ID}</span>
+                            <p className="font-medium text-slate-200">{task.Name}</p>
+                          </div>
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${task.Status === 'COMPLETED' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-amber-950 text-amber-400 border border-amber-800'}`}>
+                            {task.Status}
+                          </span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                {auditReport.length > 0 && (
+                  <div className="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400 max-h-24 overflow-y-auto">
+                    <p className="font-bold text-purple-300 mb-1">UI Auditor Highlights:</p>
+                    {auditReport.slice(0, 3).map((a, i) => (
+                      <div key={i} className="truncate">• {a.submodule}: Missing {a.missing_ui_elements?.length || 0} UI element(s)</div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Live Tailer Backend Logs */}
+              <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-base font-semibold text-blue-400" title="Real-time tail of the Go backend execution logs.">
+                      System Execution Logs
+                    </h3>
+                    <span className="text-[10px] font-mono px-2 py-0.5 bg-blue-950 text-blue-300 border border-blue-800 rounded">
+                      Live Tail
+                    </span>
+                  </div>
+                  <pre className="bg-slate-950 p-4 rounded-xl text-xs font-mono text-slate-300 h-64 overflow-y-auto border border-slate-800 shadow-inner">
+                    {logs || "Waiting for server execution logs..."}
+                  </pre>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
+
+      </main>
+
+      {/* Global Compact Footer */}
+      <footer className="bg-slate-900 border-t border-slate-800 py-3 px-6 text-center text-xs text-slate-500 flex flex-wrap items-center justify-between gap-2">
+        <div>
+          Jules Autopilot • Autonomous Orchestration Engine
+        </div>
+        <div className="flex items-center space-x-4">
+          <span className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            Vite SPA + Go Fiber/NetHTTP
+          </span>
+          <span>Port :8080 (API) / :3006 (Dev)</span>
+        </div>
+      </footer>
     </div>
   )
 }
+
+export default App
