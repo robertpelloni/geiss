@@ -57,6 +57,32 @@ func createDatabaseBackup(dbFile, backupDir string) (*BackupInfo, error) {
 	}, nil
 }
 
+// createStateSnapshot records the current submodule state as JSON. Why:
+// the backend no longer has a database (the gorm/sqlite layer was removed
+// as dead code), so a "database backup" had nothing to copy and always
+// failed with HTTP 500. The state worth snapshotting now is submodule sync.
+func createStateSnapshot(backupDir string) (*BackupInfo, error) {
+	if err := os.MkdirAll(backupDir, 0755); err != nil {
+		return nil, fmt.Errorf("failed to create backup dir: %w", err)
+	}
+	statuses, err := cachedSubmodules()
+	if err != nil {
+		return nil, fmt.Errorf("failed to read submodule state: %w", err)
+	}
+	payload, err := json.MarshalIndent(map[string]any{
+		"created_at": time.Now().UTC().Format(time.RFC3339),
+		"submodules": statuses,
+	}, "", "  ")
+	if err != nil {
+		return nil, err
+	}
+	filename := fmt.Sprintf("state_snapshot_%s.json", time.Now().UTC().Format("20060102_150405"))
+	if err := os.WriteFile(filepath.Join(backupDir, filename), payload, 0644); err != nil {
+		return nil, fmt.Errorf("failed to write snapshot: %w", err)
+	}
+	return &BackupInfo{Filename: filename, SizeBytes: int64(len(payload)), CreatedAt: time.Now().UTC()}, nil
+}
+
 // listBackups lists all existing backups in the backup directory, sorted newest first.
 func listBackups(backupDir string) ([]BackupInfo, error) {
 	if err := os.MkdirAll(backupDir, 0755); err != nil {
@@ -70,7 +96,8 @@ func listBackups(backupDir string) ([]BackupInfo, error) {
 
 	var backups []BackupInfo
 	for _, entry := range entries {
-		if entry.IsDir() || filepath.Ext(entry.Name()) != ".db" {
+		ext := filepath.Ext(entry.Name())
+		if entry.IsDir() || (ext != ".db" && ext != ".json") {
 			continue
 		}
 		info, err := entry.Info()
@@ -113,7 +140,12 @@ func databaseBackupHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPost {
-		info, err := createDatabaseBackup(dbPath, backupDir)
+		// Legacy path only when a real jules.db exists; otherwise snapshot state.
+		create := createStateSnapshot
+		if _, err := os.Stat(dbPath); err == nil {
+			create = func(dir string) (*BackupInfo, error) { return createDatabaseBackup(dbPath, dir) }
+		}
+		info, err := create(backupDir)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			json.NewEncoder(w).Encode(BackupResponse{
