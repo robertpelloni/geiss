@@ -102,7 +102,7 @@ func conflictResolutionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var reports []ConflictReport
+	reports := []ConflictReport{}
 	for _, file := range files {
 		fullPath := repoPath + "/" + file
 		blocks, err := extractConflictBlocks(fullPath)
@@ -110,7 +110,10 @@ func conflictResolutionHandler(w http.ResponseWriter, r *http.Request) {
 			continue // Skip files that can't be read
 		}
 
-		var strategies []string
+		if blocks == nil {
+			blocks = []ConflictBlock{}
+		}
+		strategies := []string{}
 		for _, block := range blocks {
 			strategies = append(strategies, analyzeConflict(block))
 		}

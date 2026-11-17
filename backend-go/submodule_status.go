@@ -25,7 +25,7 @@ func checkSubmodules() ([]SubmoduleStatus, error) {
 	}
 
 	lines := strings.Split(strings.TrimSpace(string(out)), "\n")
-	var statuses []SubmoduleStatus
+	statuses := []SubmoduleStatus{}
 
 	for _, line := range lines {
 		if line == "" {

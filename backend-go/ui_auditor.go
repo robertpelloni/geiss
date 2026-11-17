@@ -104,7 +104,7 @@ func uiAuditorHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var reports []UIAuditReport
+	reports := []UIAuditReport{}
 	for _, sm := range submodules {
 		reports = append(reports, auditSubmodule(repoPath, sm))
 	}

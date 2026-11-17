@@ -307,7 +307,7 @@ function App() {
             <h1 className="text-xl font-extrabold tracking-tight text-white flex items-center gap-2" title="Unified Autonomous Management Hub for Jules Autopilot and the Omni-Workspace">
               Jules Autopilot
               <span className="text-xs px-2 py-0.5 font-mono uppercase bg-blue-900/60 text-blue-300 border border-blue-700/50 rounded-full" title="Global architecture: Native Go Backend + Pure React 19 SPA">
-                Go-First v1.0.44
+                Go-First v1.0.45
               </span>
             </h1>
             <p className="text-xs text-slate-400">Autonomous Orchestration • Extreme Telemetry • Omnipresent Tray</p>

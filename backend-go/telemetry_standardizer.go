@@ -90,7 +90,7 @@ func standardizeFile(filePath string) (bool, string) {
 }
 
 func scanAndStandardize(targetDir string) []TelemetryReport {
-	var results []TelemetryReport
+	results := []TelemetryReport{}
 
 	_ = filepath.Walk(targetDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {

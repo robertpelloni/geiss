@@ -35,8 +35,10 @@ func createDatabaseBackup(dbFile, backupDir string) (*BackupInfo, error) {
 	}
 	defer src.Close()
 
-	timestamp := time.Now().UTC().Format("20060102_150405")
-	backupFilename := fmt.Sprintf("jules_backup_%s.db", timestamp)
+	// Nanosecond suffix: second-resolution names collided, so two backups
+	// in the same second silently overwrote each other.
+	now := time.Now().UTC()
+	backupFilename := fmt.Sprintf("jules_backup_%s_%09d.db", now.Format("20060102_150405"), now.Nanosecond())
 	destPath := filepath.Join(backupDir, backupFilename)
 
 	dest, err := os.Create(destPath)
@@ -76,7 +78,8 @@ func createStateSnapshot(backupDir string) (*BackupInfo, error) {
 	if err != nil {
 		return nil, err
 	}
-	filename := fmt.Sprintf("state_snapshot_%s.json", time.Now().UTC().Format("20060102_150405"))
+	now := time.Now().UTC()
+	filename := fmt.Sprintf("state_snapshot_%s_%09d.json", now.Format("20060102_150405"), now.Nanosecond())
 	if err := os.WriteFile(filepath.Join(backupDir, filename), payload, 0644); err != nil {
 		return nil, fmt.Errorf("failed to write snapshot: %w", err)
 	}

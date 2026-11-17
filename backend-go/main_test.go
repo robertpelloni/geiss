@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 )
@@ -485,5 +486,90 @@ func TestPipelineNonexistentSubmoduleFails(t *testing.T) {
 	ok, _ := runPipeline("..", "definitely_missing_submodule_xyz", "local")
 	if ok {
 		t.Fatal("nonexistent submodule must fail, not succeed")
+	}
+}
+
+func TestConflictHandlerReturnsEmptyArrayNotNull(t *testing.T) {
+	rr := httptest.NewRecorder()
+	conflictResolutionHandler(rr, httptest.NewRequest(http.MethodGet, "/api/conflicts/resolve", nil))
+	if rr.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d", rr.Code)
+	}
+	if got := string(bytes.TrimSpace(rr.Body.Bytes())); got != "[]" {
+		t.Fatalf("empty conflicts must encode as [], got %s", got)
+	}
+}
+
+func TestShadowReportFilesNeverNull(t *testing.T) {
+	report, err := monitorGitDiff()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if report.Files == nil {
+		t.Fatal("files_modified must encode as [], not null")
+	}
+	b, _ := json.Marshal(report)
+	var raw map[string]json.RawMessage
+	if err := json.Unmarshal(b, &raw); err != nil {
+		t.Fatal(err)
+	}
+	if string(raw["files_modified"]) == "null" {
+		t.Fatal("files_modified encoded as null")
+	}
+}
+
+func TestPipelineTraversalRejected(t *testing.T) {
+	root := t.TempDir()
+	repo := filepath.Join(root, "repo")
+	outside := filepath.Join(root, "outside")
+	_ = os.MkdirAll(repo, 0755)
+	_ = os.MkdirAll(outside, 0755)
+	_ = os.WriteFile(filepath.Join(outside, "go.mod"), []byte("module outside\n\ngo 1.26\n"), 0644)
+	_ = os.WriteFile(filepath.Join(outside, "x_test.go"), []byte("package outside\n"), 0644)
+	if ok, msg := runPipeline(repo, "../outside", "local"); ok {
+		t.Fatalf("pipeline must reject workspace escape, got success: %s", msg)
+	}
+}
+
+func TestBackupFilenamesUnique(t *testing.T) {
+	dir := t.TempDir()
+	db := filepath.Join(dir, "jules.db")
+	_ = os.WriteFile(db, []byte("db-content"), 0644)
+	bdir := filepath.Join(dir, "backups")
+	a, err := createDatabaseBackup(db, bdir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := createDatabaseBackup(db, bdir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if a.Filename == b.Filename {
+		t.Fatalf("db backup filename collision: %s", a.Filename)
+	}
+	s1, err := createStateSnapshot(bdir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	s2, err := createStateSnapshot(bdir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if s1.Filename == s2.Filename {
+		t.Fatalf("snapshot filename collision: %s", s1.Filename)
+	}
+}
+
+func TestQueueIDsUnique(t *testing.T) {
+	before := len(queue.Tasks)
+	AddTask("probe-a")
+	AddTask("probe-b")
+	queue.mu.Lock()
+	n := len(queue.Tasks)
+	id1, id2 := queue.Tasks[n-2].ID, queue.Tasks[n-1].ID
+	queue.Tasks = queue.Tasks[:before]
+	queue.mu.Unlock()
+	if id1 == id2 {
+		t.Fatalf("duplicate task IDs %s", id1)
 	}
 }

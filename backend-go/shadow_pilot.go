@@ -31,7 +31,7 @@ func monitorGitDiff() (*AnomalyReport, error) {
 	}
 
 	files := strings.Split(strings.TrimSpace(string(out)), "\n")
-	var modifiedFiles []string
+	modifiedFiles := []string{}
 	for _, f := range files {
 		if f != "" {
 			modifiedFiles = append(modifiedFiles, f)

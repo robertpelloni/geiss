@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -21,6 +22,8 @@ type TaskQueue struct {
 	Tasks []Task
 }
 
+var taskSeq atomic.Int64
+
 var queue = &TaskQueue{
 	Tasks: make([]Task, 0),
 }
@@ -30,7 +33,8 @@ func AddTask(name string) {
 	defer queue.mu.Unlock()
 
 	task := Task{
-		ID:        fmt.Sprintf("task-%d", time.Now().UnixNano()),
+		// UnixNano alone collides on coarse Windows clocks; atomic seq cannot.
+		ID:        fmt.Sprintf("task-%d-%d", time.Now().UnixNano(), taskSeq.Add(1)),
 		Name:      name,
 		Status:    "PENDING",
 		CreatedAt: time.Now(),

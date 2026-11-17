@@ -144,7 +144,17 @@ func deployStage(submodulePath, environment string) (bool, string) {
 }
 
 func runPipeline(repoPath, submodule, environment string) (bool, string) {
-	fullPath := filepath.Join(repoPath, submodule)
+	// Reject submodule paths escaping the workspace (e.g. "../outside"):
+	// Join alone happily resolves them and stages then run outside the tree.
+	repoAbs, err := filepath.Abs(repoPath)
+	if err != nil {
+		return false, "invalid workspace path"
+	}
+	fullPath := filepath.Join(repoAbs, submodule)
+	rel, err := filepath.Rel(repoAbs, fullPath)
+	if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+		return false, fmt.Sprintf("Submodule path '%s' escapes the workspace.", submodule)
+	}
 	if _, err := os.Stat(fullPath); os.IsNotExist(err) {
 		return false, fmt.Sprintf("Submodule path '%s' does not exist.", submodule)
 	}

@@ -115,7 +115,7 @@ func pruneSubmodulesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var reports []PruneReport
+	reports := []PruneReport{}
 	for _, sm := range submodules {
 		reports = append(reports, checkAndPruneSubmodule(repoPath, sm, autoPrune))
 	}
