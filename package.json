@@ -2,7 +2,7 @@
   "name": "jules-autopilot",
   "private": true,
   "packageManager": "bun@1.3.14",
-  "version": "1.0.43",
+  "version": "1.0.44",
   "type": "module",
   "scripts": {
     "dev": "vite",

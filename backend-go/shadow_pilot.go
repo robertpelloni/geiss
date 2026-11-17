@@ -22,7 +22,9 @@ type AnomalyReport struct {
 func monitorGitDiff() (*AnomalyReport, error) {
 	cmd := exec.Command("git", "diff", "--name-only")
 	cmd.Dir = ".."
-	out, err := cmd.CombinedOutput()
+	// Output(), not CombinedOutput(): git's CRLF "warning: in the working
+	// copy..." lines go to stderr and were previously parsed as filenames.
+	out, err := cmd.Output()
 
 	if err != nil {
 		return nil, fmt.Errorf("git diff failed: %v", err)
@@ -38,7 +40,7 @@ func monitorGitDiff() (*AnomalyReport, error) {
 
 	cmdFull := exec.Command("git", "diff")
 	cmdFull.Dir = ".."
-	fullOut, _ := cmdFull.CombinedOutput()
+	fullOut, _ := cmdFull.Output()
 
 	report := &AnomalyReport{
 		Timestamp: time.Now(),

@@ -94,7 +94,8 @@ func listBackups(backupDir string) ([]BackupInfo, error) {
 		return nil, err
 	}
 
-	var backups []BackupInfo
+	// Empty slice, not nil: JSON must encode [] (frontend expects an array).
+	backups := []BackupInfo{}
 	for _, entry := range entries {
 		ext := filepath.Ext(entry.Name())
 		if entry.IsDir() || (ext != ".db" && ext != ".json") {

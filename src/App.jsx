@@ -307,7 +307,7 @@ function App() {
             <h1 className="text-xl font-extrabold tracking-tight text-white flex items-center gap-2" title="Unified Autonomous Management Hub for Jules Autopilot and the Omni-Workspace">
               Jules Autopilot
               <span className="text-xs px-2 py-0.5 font-mono uppercase bg-blue-900/60 text-blue-300 border border-blue-700/50 rounded-full" title="Global architecture: Native Go Backend + Pure React 19 SPA">
-                Go-First v1.0.43
+                Go-First v1.0.44
               </span>
             </h1>
             <p className="text-xs text-slate-400">Autonomous Orchestration • Extreme Telemetry • Omnipresent Tray</p>
@@ -478,113 +478,6 @@ function App() {
                     <p className="text-[11px] text-slate-300 mt-1"><span className="text-slate-400">Rationale:</span> {taskRoutingResult.reasoning}</p>
                   </div>
                 )}
-              </div>
-
-              {/* Card 3: Mass Global Search & Replace */}
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col justify-between hover:border-slate-700 transition-colors">
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-base font-semibold text-emerald-400 flex items-center gap-2" title="Executes high-performance text replacements across all 100+ submodules in the Omni-Workspace.">
-                      Global Code Refactor
-                    </h3>
-                    <span className="text-[10px] uppercase font-mono px-2 py-0.5 bg-emerald-950/80 text-emerald-300 border border-emerald-800 rounded">
-                      Omni-Workspace
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-300 mb-3">
-                    DESTRUCTIVE when Dry Run is off: multi-repository mass refactoring. Dry Run (default) previews only.
-                  </p>
-
-                  <form onSubmit={handleGlobalRefactor} className="space-y-2">
-                    <div className="grid grid-cols-2 gap-2">
-                      <input
-                        type="text"
-                        value={searchStr}
-                        onChange={e => setSearchStr(e.target.value)}
-                        placeholder="Search term..."
-                        className="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-                        title="Search string across all workspace projects"
-                      />
-                      <input
-                        type="text"
-                        value={replaceStr}
-                        onChange={e => setReplaceStr(e.target.value)}
-                        placeholder="Replace with..."
-                        className="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-                        title="Replacement target string"
-                      />
-                    </div>
-                    <div className="flex items-center justify-between pt-1">
-                      <label className="flex items-center space-x-2 text-xs text-slate-300 cursor-pointer" title="Dry run lists files that will change without altering content on disk.">
-                        <input
-                          type="checkbox"
-                          checked={dryRun}
-                          onChange={e => setDryRun(e.target.checked)}
-                          className="rounded bg-slate-950 border-slate-700 text-emerald-600 focus:ring-0"
-                        />
-                        <span>Dry Run (Safe Preview)</span>
-                      </label>
-                      <button
-                        type="submit"
-                        disabled={refactorLoading}
-                        className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors shadow"
-                      >
-                        {refactorLoading ? "Scanning..." : "Execute"}
-                      </button>
-                    </div>
-                  </form>
-                </div>
-
-                {refactorResult && (
-                  <div className="mt-3 p-3 bg-slate-950 border border-emerald-500/30 rounded-xl text-xs space-y-1 max-h-24 overflow-y-auto">
-                    <p className="text-emerald-300 font-bold">Affected: {refactorResult.modified_files} file(s)</p>
-                    {refactorResult.files?.map((f, idx) => (
-                      <div key={idx} className="font-mono text-[10px] text-slate-400 truncate">{f}</div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Card 4: SQLite State Snapshots */}
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col justify-between hover:border-slate-700 transition-colors">
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-base font-semibold text-teal-400 flex items-center gap-2" title="Creates a JSON state snapshot of submodule sync state (no database). No restore/delete endpoint exists.">
-                      State Snapshots
-                    </h3>
-                    <span className="text-[10px] uppercase font-mono px-2 py-0.5 bg-teal-950/80 text-teal-300 border border-teal-800 rounded">
-                      State Snapshots
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-300 mb-3">
-                    Timestamped JSON snapshots of submodule sync state, stored in backend-go/backups/.
-                  </p>
-
-                  <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
-                    {backups.length === 0 ? (
-                      <p className="text-xs text-slate-500 italic py-2">No state snapshots yet.</p>
-                    ) : (
-                      backups.slice(0, 4).map((b, idx) => (
-                        <div key={idx} className="p-2 bg-slate-950 border border-slate-800 rounded-lg flex items-center justify-between text-[11px] font-mono">
-                          <span className="text-slate-300 truncate w-36" title={b.filename}>{b.filename}</span>
-                          <span className="text-slate-500">{Math.round(b.size_bytes / 1024)} KB · {b.created_at ? new Date(b.created_at).toLocaleString() : ''}</span>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-
-                <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between">
-                  <span className="text-[11px] text-slate-400">{backups.length} snapshot(s)</span>
-                  <button
-                    onClick={handleCreateBackup}
-                    disabled={backupLoading}
-                    className="bg-teal-600 hover:bg-teal-500 disabled:opacity-50 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs transition-colors shadow"
-                    title="Creates a JSON state snapshot of submodule state (no database, no restore endpoint)"
-                  >
-                    {backupLoading ? "Backing up..." : "Create Snapshot"}
-                  </button>
-                </div>
               </div>
             </div>
           </section>
@@ -786,6 +679,112 @@ function App() {
                   </div>
                 )}
               </div>
+              {/* Card 4: SQLite State Snapshots */}
+              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col justify-between hover:border-slate-700 transition-colors">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-base font-semibold text-teal-400 flex items-center gap-2" title="Creates a JSON state snapshot of submodule sync state (no database). No restore/delete endpoint exists.">
+                      State Snapshots
+                    </h3>
+                    <span className="text-[10px] uppercase font-mono px-2 py-0.5 bg-teal-950/80 text-teal-300 border border-teal-800 rounded">
+                      State Snapshots
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-300 mb-3">
+                    Timestamped JSON snapshots of submodule sync state, stored in backend-go/backups/.
+                  </p>
+
+                  <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
+                    {backups.length === 0 ? (
+                      <p className="text-xs text-slate-500 italic py-2">No state snapshots yet.</p>
+                    ) : (
+                      backups.slice(0, 4).map((b, idx) => (
+                        <div key={idx} className="p-2 bg-slate-950 border border-slate-800 rounded-lg flex items-center justify-between text-[11px] font-mono">
+                          <span className="text-slate-300 truncate w-36" title={b.filename}>{b.filename}</span>
+                          <span className="text-slate-500">{Math.round(b.size_bytes / 1024)} KB · {b.created_at ? new Date(b.created_at).toLocaleString() : ''}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between">
+                  <span className="text-[11px] text-slate-400">{backups.length} snapshot(s)</span>
+                  <button
+                    onClick={handleCreateBackup}
+                    disabled={backupLoading}
+                    className="bg-teal-600 hover:bg-teal-500 disabled:opacity-50 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs transition-colors shadow"
+                    title="Creates a JSON state snapshot of submodule state (no database, no restore endpoint)"
+                  >
+                    {backupLoading ? "Backing up..." : "Create Snapshot"}
+                  </button>
+                </div>
+              </div>
+
+              {/* Card 3: Mass Global Search & Replace */}
+              <div className="bg-slate-900 border border-rose-900/70 rounded-2xl p-5 shadow-lg flex flex-col justify-between hover:border-rose-700 transition-colors">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-base font-semibold text-emerald-400 flex items-center gap-2" title="Executes high-performance text replacements across all 100+ submodules in the Omni-Workspace.">
+                      Global Code Refactor
+                    </h3>
+                    <span className="text-[10px] uppercase font-mono px-2 py-0.5 bg-emerald-950/80 text-emerald-300 border border-emerald-800 rounded">
+                      Omni-Workspace
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-300 mb-3">
+                    DESTRUCTIVE when Dry Run is off: multi-repository mass refactoring. Dry Run (default) previews only.
+                  </p>
+
+                  <form onSubmit={handleGlobalRefactor} className="space-y-2">
+                    <div className="grid grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        value={searchStr}
+                        onChange={e => setSearchStr(e.target.value)}
+                        placeholder="Search term..."
+                        className="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                        title="Search string across all workspace projects"
+                      />
+                      <input
+                        type="text"
+                        value={replaceStr}
+                        onChange={e => setReplaceStr(e.target.value)}
+                        placeholder="Replace with..."
+                        className="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                        title="Replacement target string"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between pt-1">
+                      <label className="flex items-center space-x-2 text-xs text-slate-300 cursor-pointer" title="Dry run lists files that will change without altering content on disk.">
+                        <input
+                          type="checkbox"
+                          checked={dryRun}
+                          onChange={e => setDryRun(e.target.checked)}
+                          className="rounded bg-slate-950 border-slate-700 text-emerald-600 focus:ring-0"
+                        />
+                        <span>Dry Run (Safe Preview)</span>
+                      </label>
+                      <button
+                        type="submit"
+                        disabled={refactorLoading}
+                        className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors shadow"
+                      >
+                        {refactorLoading ? "Scanning..." : "Execute"}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+
+                {refactorResult && (
+                  <div className="mt-3 p-3 bg-slate-950 border border-emerald-500/30 rounded-xl text-xs space-y-1 max-h-24 overflow-y-auto">
+                    <p className="text-emerald-300 font-bold">Affected: {refactorResult.modified_files} file(s)</p>
+                    {refactorResult.files?.map((f, idx) => (
+                      <div key={idx} className="font-mono text-[10px] text-slate-400 truncate">{f}</div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </section>
         )}
@@ -826,6 +825,15 @@ function App() {
               </div>
             </div>
 
+            {auditReport.length > 0 && (
+              <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl text-[11px] text-slate-400 max-h-32 overflow-y-auto" title="UI Auditor results: per-submodule status with backend/frontend file counts">
+                <p className="font-bold text-purple-300 mb-1">UI Auditor Highlights:</p>
+                {auditReport.slice(0, 3).map((a, i) => (
+                  <div key={i} className="truncate" title={a.status}>• {a.submodule}: {a.status} (backend {a.backend_files}, frontend {a.frontend_files})</div>
+                ))}
+              </div>
+            )}
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Task Queue Telemetry */}
               <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col justify-between">
@@ -859,14 +867,6 @@ function App() {
                   </div>
                 </div>
 
-                {auditReport.length > 0 && (
-                  <div className="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400 max-h-24 overflow-y-auto">
-                    <p className="font-bold text-purple-300 mb-1">UI Auditor Highlights:</p>
-                    {auditReport.slice(0, 3).map((a, i) => (
-                      <div key={i} className="truncate" title={a.status}>• {a.submodule}: {a.status} (backend {a.backend_files}, frontend {a.frontend_files})</div>
-                    ))}
-                  </div>
-                )}
               </div>
 
               {/* Live Tailer Backend Logs */}
