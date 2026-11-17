@@ -8,6 +8,7 @@ import (
 
 	"os/exec"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -54,10 +55,15 @@ func monitorGitDiff() (*AnomalyReport, error) {
 
 // The daemon below already rescans every 30s; the handler serves its
 // latest report instead of paying a full `git diff` (~4s) per request.
-var lastShadowReport *AnomalyReport
+var (
+	lastShadowReport *AnomalyReport
+	shadowMu         sync.Mutex
+)
 
 func shadowPilotHandler(w http.ResponseWriter, r *http.Request) {
+	shadowMu.Lock()
 	report := lastShadowReport
+	shadowMu.Unlock()
 	if report == nil {
 		var err error
 		report, err = monitorGitDiff()
@@ -79,7 +85,12 @@ func startShadowDaemon() {
 			report, err := monitorGitDiff()
 			if err != nil {
 				log.Printf("[SHADOW] Error monitoring diffs: %v", err)
-			} else if lastShadowReport = report; len(report.Files) > 0 {
+			} else if func() bool {
+				shadowMu.Lock()
+				defer shadowMu.Unlock()
+				lastShadowReport = report
+				return len(report.Files) > 0
+			}() {
 				log.Printf("[SHADOW] Detected modifications in %d files (Size: %db)", len(report.Files), report.DiffSize)
 				if report.Warning != "" {
 					log.Printf("[SHADOW ALERT] %s", report.Warning)

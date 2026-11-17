@@ -132,11 +132,17 @@ func telemetryStandardizerHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if req.TargetDir == "" {
-		req.TargetDir = ".."
-	} else {
-		req.TargetDir = filepath.Join("..", req.TargetDir)
+	base, _ := filepath.Abs("..")
+	joined := base
+	if req.TargetDir != "" {
+		joined = filepath.Join(base, req.TargetDir)
 	}
+	rel, err := filepath.Rel(base, joined)
+	if err != nil || rel == ".." || strings.HasPrefix(rel, ".."+string(filepath.Separator)) {
+		http.Error(w, "target_dir escapes workspace", http.StatusBadRequest)
+		return
+	}
+	req.TargetDir = joined
 
 	reports := scanAndStandardize(req.TargetDir)
 

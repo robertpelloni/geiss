@@ -6,23 +6,20 @@ import (
 	"net/http"
 )
 
+// ciAutoFixHandler is an honest simulation stub: no CI auto-fix command
+// is configured, so it reports 501 instead of claiming success.
+func ciAutoFixHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	log.Println("[SHADOW] CI Auto-Fix requested (simulation: not configured)")
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusNotImplemented)
+	json.NewEncoder(w).Encode(AutoFixResponse{Success: false, Message: "Simulation only: no CI auto-fix command is configured; nothing was executed."})
+}
+
 type AutoFixResponse struct {
 	Message string `json:"message"`
 	Success bool   `json:"success"`
-}
-
-func ciAutoFixHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("[SHADOW] Attempting to trigger CI Pipeline Auto-Fix...")
-
-	// Native Go implementation for auto-fixing CI anomalies to align with the Go-first architecture.
-	resp := AutoFixResponse{
-		Success: true,
-		Message: "Auto-fix executed natively via Go pipeline routines.",
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	if !resp.Success {
-		w.WriteHeader(http.StatusInternalServerError)
-	}
-	json.NewEncoder(w).Encode(resp)
 }

@@ -1,11 +1,15 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"strings"
+	"time"
 
 	"gopkg.in/yaml.v3"
 )
@@ -95,22 +99,48 @@ func generateGithubAction(repoPath, submodule string) bool {
 	return err == nil
 }
 
-func buildStage(submodulePath string) bool {
+func buildStage(submodulePath string) (bool, string) {
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+	defer cancel()
+	if _, err := os.Stat(filepath.Join(submodulePath, "go.mod")); err == nil {
+		out, err := exec.CommandContext(ctx, "go", "vet", "./...").CombinedOutput()
+		_ = out
+		if err != nil {
+			return false, "go vet failed: " + err.Error()
+		}
+		return true, "go vet passed"
+	}
+	if _, err := os.Stat(filepath.Join(submodulePath, "package.json")); err == nil {
+		return true, "package.json present (build not executed by dispatcher)"
+	}
 	if _, err := os.Stat(filepath.Join(submodulePath, "Makefile")); err == nil {
-		return true // placeholder for make build
+		return true, "Makefile present (build not executed by dispatcher)"
 	}
-	return true
+	return false, "no recognised build system (go.mod/package.json/Makefile)"
 }
 
-func testStage(submodulePath string) bool {
+func testStage(submodulePath string) (bool, string) {
 	if _, err := os.Stat(filepath.Join(submodulePath, "tests")); err == nil {
-		return true // placeholder for tests
+		return true, "tests/ present (not executed by dispatcher)"
 	}
-	return true
+	found := false
+	_ = filepath.Walk(submodulePath, func(p string, info os.FileInfo, err error) error {
+		if err == nil && !info.IsDir() && strings.HasSuffix(info.Name(), "_test.go") {
+			found = true
+		}
+		return nil
+	})
+	if found {
+		return true, "test files present (not executed by dispatcher)"
+	}
+	return false, "no tests found"
 }
 
-func deployStage(submodulePath, environment string) bool {
-	return true // placeholder for deploy
+func deployStage(submodulePath, environment string) (bool, string) {
+	if environment == "local" {
+		return true, "local dry-run: no deploy performed"
+	}
+	return false, "deploy to '" + environment + "' is not implemented (simulation only)"
 }
 
 func runPipeline(repoPath, submodule, environment string) (bool, string) {
@@ -119,17 +149,16 @@ func runPipeline(repoPath, submodule, environment string) (bool, string) {
 		return false, fmt.Sprintf("Submodule path '%s' does not exist.", submodule)
 	}
 
-	if !buildStage(fullPath) {
-		return false, "Build stage failed."
+	if ok, msg := buildStage(fullPath); !ok {
+		return false, "Build stage failed: " + msg
 	}
-	if !testStage(fullPath) {
-		return false, "Test stage failed."
+	if ok, msg := testStage(fullPath); !ok {
+		return false, "Test stage failed: " + msg
 	}
-	if !deployStage(fullPath, environment) {
-		return false, "Deploy stage failed."
+	if ok, msg := deployStage(fullPath, environment); !ok {
+		return false, "Deploy stage failed: " + msg
 	}
-
-	return true, "Pipeline executed successfully."
+	return true, "Pipeline checks passed (build/test verified present; local deploy is a dry-run)."
 }
 
 func deploymentPipelineHandler(w http.ResponseWriter, r *http.Request) {

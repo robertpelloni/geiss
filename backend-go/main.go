@@ -13,25 +13,25 @@ func main() {
 	// Register API handlers
 	http.HandleFunc("/api/shadow/diff", shadowPilotHandler)
 	http.HandleFunc("/system/status", submoduleStatusHandler)
-	http.HandleFunc("/api/shadow/autofix", ciAutoFixHandler)
+	http.HandleFunc("/api/shadow/autofix", authMiddleware(ciAutoFixHandler))
 	http.HandleFunc("/api/queue/telemetry", queueTelemetryHandler)
-	http.HandleFunc("/api/tasks/route", taskRouterHandler)
+	http.HandleFunc("/api/tasks/route", authMiddleware(taskRouterHandler))
 	http.HandleFunc("/api/conflicts/resolve", conflictResolutionHandler)
 	http.HandleFunc("/api/system/drift", driftDetectionHandler)
-	http.HandleFunc("/api/system/prune", pruneSubmodulesHandler)
+	http.HandleFunc("/api/system/prune", authMutatingOnly(pruneSubmodulesHandler))
 	http.HandleFunc("/api/system/dashboard", authMiddleware(generateDashboardHandler))
 	http.HandleFunc("/api/system/audit", authMiddleware(uiAuditorHandler))
-	http.HandleFunc("/api/system/telemetry", telemetryStandardizerHandler)
+	http.HandleFunc("/api/system/telemetry", authMiddleware(telemetryStandardizerHandler))
 	http.HandleFunc("/api/system/logs", logTailerHandler)
-	http.HandleFunc("/api/system/pipeline", deploymentPipelineHandler)
-	http.HandleFunc("/api/system/refactor", globalSearchAndReplaceHandler)
+	http.HandleFunc("/api/system/pipeline", authMiddleware(deploymentPipelineHandler))
+	http.HandleFunc("/api/system/refactor", authMiddleware(globalSearchAndReplaceHandler))
 	// Both shutdown paths: /api/system/server/* is used by scripts/system_tray.py,
 	// /api/system/shutdown + /api/system/tray by the upstream dashboard.
 	http.HandleFunc("/api/system/server/status", serverStatusHandler)
 	http.HandleFunc("/api/system/server/shutdown", authMiddleware(serverShutdownHandler))
 	http.HandleFunc("/api/system/tray", systemTrayStatusHandler)
-	http.HandleFunc("/api/system/shutdown", systemShutdownHandler)
-	http.HandleFunc("/api/system/backup", databaseBackupHandler)
+	http.HandleFunc("/api/system/shutdown", authMiddleware(systemShutdownHandler))
+	http.HandleFunc("/api/system/backup", authMutatingOnly(databaseBackupHandler))
 
 	// Start background daemons
 	startShadowDaemon()

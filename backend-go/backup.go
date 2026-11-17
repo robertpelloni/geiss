@@ -118,10 +118,15 @@ func listBackups(backupDir string) ([]BackupInfo, error) {
 	return backups, nil
 }
 
+var (
+	backupDBPath  = "jules.db"
+	backupDirPath = "backups"
+)
+
 // databaseBackupHandler handles GET (list backups) and POST (trigger new backup).
 func databaseBackupHandler(w http.ResponseWriter, r *http.Request) {
-	dbPath := "jules.db"
-	backupDir := "backups"
+	dbPath := backupDBPath
+	backupDir := backupDirPath
 
 	w.Header().Set("Content-Type", "application/json")
 

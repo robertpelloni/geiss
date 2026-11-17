@@ -29,7 +29,7 @@ type TrayActionResponse struct {
 }
 
 var (
-	trayStartTime = time.Now()
+	trayStartTime = startTime
 	trayMu        sync.Mutex
 	exitFunc      = os.Exit
 	trayStatus    = SystemTrayStatus{

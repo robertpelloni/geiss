@@ -10,10 +10,6 @@ import (
 	"time"
 )
 
-func setupTestDB() {}
-
-func teardownTestDB() {}
-
 func TestServerStatusHandler(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/api/system/server/status", nil)
 	rr := httptest.NewRecorder()
@@ -41,17 +37,15 @@ func TestCIAutoFixHandler(t *testing.T) {
 
 	handler.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusOK {
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	if status := rr.Code; status != http.StatusNotImplemented {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusNotImplemented)
 	}
-
 	var resp AutoFixResponse
 	if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
 		t.Fatal(err)
 	}
-
-	if !resp.Success {
-		t.Errorf("expected success to be true")
+	if resp.Success {
+		t.Errorf("simulation stub must not claim success")
 	}
 }
 
@@ -84,9 +78,6 @@ func TestTaskRouterHandler(t *testing.T) {
 }
 
 func TestQueueTelemetryHandler(t *testing.T) {
-	setupTestDB()
-	defer teardownTestDB()
-
 	req, err := http.NewRequest("GET", "/api/queue/telemetry", nil)
 	if err != nil {
 		t.Fatal(err)
@@ -150,10 +141,12 @@ func TestDriftDetectionHandler(t *testing.T) {
 }
 
 func TestDatabaseBackupHandler(t *testing.T) {
-	// Prepare test db file
-	_ = os.WriteFile("jules.db", []byte("test-database-content"), 0644)
-	defer os.Remove("jules.db")
-	defer os.RemoveAll("backups")
+	dir := t.TempDir()
+	oldDB, oldDir := backupDBPath, backupDirPath
+	backupDBPath = dir + "/jules.db"
+	backupDirPath = dir + "/backups"
+	defer func() { backupDBPath, backupDirPath = oldDB, oldDir }()
+	_ = os.WriteFile(backupDBPath, []byte("test-database-content"), 0644)
 
 	// Test POST: Create Backup
 	postReq, err := http.NewRequest("POST", "/api/system/backup", nil)
@@ -435,5 +428,62 @@ func TestDeploymentPipelineHandler(t *testing.T) {
 	var resp PipelineResponse
 	if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestAuthMiddlewareFailClosed(t *testing.T) {
+	ok := func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusOK) }
+	h := authMiddleware(ok)
+	t.Setenv("JULES_API_KEY", "")
+	rr := httptest.NewRecorder()
+	h(rr, httptest.NewRequest(http.MethodPost, "/x", nil))
+	if rr.Code != http.StatusUnauthorized {
+		t.Fatalf("unset key: want 401 got %d", rr.Code)
+	}
+	t.Setenv("JULES_API_KEY", "secret")
+	rr = httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPost, "/x", nil)
+	req.Header.Set("X-API-KEY", "wrong")
+	h(rr, req)
+	if rr.Code != http.StatusUnauthorized {
+		t.Fatalf("wrong key: want 401 got %d", rr.Code)
+	}
+	rr = httptest.NewRecorder()
+	req = httptest.NewRequest(http.MethodPost, "/x", nil)
+	req.Header.Set("X-API-KEY", "secret")
+	h(rr, req)
+	if rr.Code != http.StatusOK {
+		t.Fatalf("good key: want 200 got %d", rr.Code)
+	}
+}
+
+func TestTelemetryTraversalRejected(t *testing.T) {
+	b, _ := json.Marshal(TelemetryRequest{TargetDir: "../../outside"})
+	req := httptest.NewRequest(http.MethodPost, "/api/system/telemetry", bytes.NewBuffer(b))
+	rr := httptest.NewRecorder()
+	telemetryStandardizerHandler(rr, req)
+	if rr.Code != http.StatusBadRequest {
+		t.Fatalf("traversal: want 400 got %d", rr.Code)
+	}
+}
+
+func TestStateSnapshotNoDB(t *testing.T) {
+	dir := t.TempDir()
+	info, err := createStateSnapshot(dir + "/backups")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if info == nil || info.Filename == "" {
+		t.Fatalf("bad snapshot: %+v", info)
+	}
+	if _, err := os.Stat(dir + "/backups/" + info.Filename); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestPipelineNonexistentSubmoduleFails(t *testing.T) {
+	ok, _ := runPipeline("..", "definitely_missing_submodule_xyz", "local")
+	if ok {
+		t.Fatal("nonexistent submodule must fail, not succeed")
 	}
 }

@@ -28,3 +28,6 @@ This document outlines the major, long-term structural milestones and foundation
 - [ ] Migrate `jules.db` to a robust production database like PostgreSQL instead of SQLite.
 - [ ] Implement robust user authentication and role-based access for the Omni-Workspace UI.
 - [ ] Add real-time log streaming from submodules into the React frontend.
+
+## 1.0.43 status
+Single-page dashboard, pure-Go backend (no sqlite/GORM/Fiber), fail-closed auth, honest simulation labelling. Next: owner-gated submodule merge resolution.

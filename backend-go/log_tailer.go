@@ -15,6 +15,7 @@ func logTailerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cmd := exec.Command("git", "log", "-n", "10", "--oneline")
+	cmd.Dir = ".."
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Printf("Failed to tail logs: %v", err)
@@ -24,7 +25,8 @@ func logTailerHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{
-		"logs": string(output),
+		"logs":   string(output),
+		"source": "git log (commit history, not application logs)",
 		"status": "success",
 	})
 }

@@ -22,3 +22,6 @@
 ## Notes for Successor
 - Backups are stored in `backend-go/backups/`.
 - Next backlog items: WebSockets for real-time queue telemetry and automated Playwright E2E suite.
+
+## 2026-11-16 1.0.43 handoff [muse-wonder-1.0 in Muse Code in C:/Users/hyper/workspace/bobsaver on laptop]
+Backend pure Go (no sqlite), bun frontend, VERSION.md mirrors root 1.0.43. Do NOT run sync.ps1. See MANUAL.md for card/route/auth/effects.

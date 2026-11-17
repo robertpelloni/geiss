@@ -31,17 +31,25 @@ function App() {
   const [pipelineResult, setPipelineResult] = useState(null)
   const [pipelineLoading, setPipelineLoading] = useState(false)
 
-  // Database Backups
+  // State Snapshots
   const [backups, setBackups] = useState([])
   const [backupLoading, setBackupLoading] = useState(false)
 
   // Status Notification
   const [statusMessage, setStatusMessage] = useState("")
-  const [activeTab, setActiveTab] = useState("all") // 'all', 'orchestration', 'submodules', 'telemetry'
+  const [serverStatus, setServerStatus] = useState(null)
+  const [pruneReport, setPruneReport] = useState([])
 
   const notify = (msg) => {
     setStatusMessage(msg)
     setTimeout(() => setStatusMessage(""), 4000)
+  }
+
+  const fetchServerStatus = () => {
+    fetch('/api/system/server/status')
+      .then(res => res.json())
+      .then(data => setServerStatus(data))
+      .catch(err => console.error("Server status error:", err))
   }
 
   const fetchTray = () => {
@@ -83,7 +91,7 @@ function App() {
 
   const handleCreateBackup = () => {
     setBackupLoading(true)
-    fetch('/api/system/backup', { method: 'POST' })
+    fetch('/api/system/backup', { method: 'POST', headers: { 'X-API-KEY': apiKey } })
       .then(res => res.json())
       .then(data => {
         setBackupLoading(false)
@@ -92,7 +100,7 @@ function App() {
       })
       .catch(() => {
         setBackupLoading(false)
-        notify("Failed to create database backup snapshot.")
+        notify("Failed to create state snapshot.")
       })
   }
 
@@ -102,6 +110,7 @@ function App() {
     fetchLogs()
     fetchTray()
     fetchBackups()
+    fetchServerStatus()
 
     // Polling interval for queue telemetry & tray uptime
     const interval = setInterval(() => {
@@ -110,6 +119,7 @@ function App() {
         .then(data => setQueue(data || []))
         .catch(err => console.error("Failed to fetch queue telemetry:", err))
       fetchTray()
+      fetchServerStatus()
     }, 2500)
 
     return () => clearInterval(interval)
@@ -133,7 +143,7 @@ function App() {
     setRoutingLoading(true)
     fetch('/api/tasks/route', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-API-KEY': apiKey },
       body: JSON.stringify({ task_description: taskInput })
     })
       .then(res => res.json())
@@ -175,10 +185,11 @@ function App() {
     fetch('/api/system/prune')
       .then(res => res.json())
       .then(data => {
-        notify(`Prune scan complete: ${data?.length || 0} modules verified.`)
+        setPruneReport(data || [])
+        notify(`Broken-submodule scan complete: ${data?.length || 0} modules verified (scan only, nothing pruned).`)
         fetchSubmodules()
       })
-      .catch(() => notify("Error pruning submodules."))
+      .catch(() => notify("Error scanning submodules."))
   }
 
   // Generate Dashboard
@@ -199,7 +210,7 @@ function App() {
     setRefactorLoading(true)
     fetch('/api/system/refactor', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-API-KEY': apiKey },
       body: JSON.stringify({ search_str: searchStr, replace_str: replaceStr, dry_run: dryRun })
     })
       .then(res => res.json())
@@ -255,7 +266,7 @@ function App() {
   const handleStandardizeTelemetry = () => {
     fetch('/api/system/telemetry', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-API-KEY': apiKey },
       body: JSON.stringify({ target_dir: "." })
     })
       .then(res => res.json())
@@ -266,7 +277,7 @@ function App() {
   // Graceful Server Shutdown via System Tray
   const handleQuitServers = () => {
     if (window.confirm("Are you sure you want to shut down the Jules Autopilot Go backend and daemons?")) {
-      fetch('/api/system/shutdown', { method: 'POST' })
+      fetch('/api/system/shutdown', { method: 'POST', headers: { 'X-API-KEY': apiKey } })
         .then(res => res.json())
         .then(data => {
           alert(data.message)
@@ -296,7 +307,7 @@ function App() {
             <h1 className="text-xl font-extrabold tracking-tight text-white flex items-center gap-2" title="Unified Autonomous Management Hub for Jules Autopilot and the Omni-Workspace">
               Jules Autopilot
               <span className="text-xs px-2 py-0.5 font-mono uppercase bg-blue-900/60 text-blue-300 border border-blue-700/50 rounded-full" title="Global architecture: Native Go Backend + Pure React 19 SPA">
-                Go-First v1.0.39
+                Go-First v1.0.43
               </span>
             </h1>
             <p className="text-xs text-slate-400">Autonomous Orchestration • Extreme Telemetry • Omnipresent Tray</p>
@@ -319,6 +330,10 @@ function App() {
             </div>
           </div>
 
+          <div className="text-left" title="Go backend server status (polled every 2.5s)">
+            <div className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Backend</div>
+            <div className="text-xs font-mono text-slate-200">{serverStatus ? `PID ${serverStatus.pid} · ${serverStatus.uptime_sec}s up` : 'offline'}</div>
+          </div>
           <div className="h-6 w-px bg-slate-800" />
 
           {/* Destructive / Auth API Key Input */}
@@ -351,7 +366,7 @@ function App() {
       <main className="flex-1 p-6 space-y-8 max-w-7xl mx-auto w-full">
 
         {/* SECTION 1: HIGHEST-VALUE ORCHESTRATION & AUTONOMY (Always visible or in Orchestration tab) */}
-        {(activeTab === 'all' || activeTab === 'orchestration') && (
+        {true && (
           <section className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
@@ -389,6 +404,7 @@ function App() {
                         <span className="text-slate-400">Last Scan:</span>
                         <span className="text-slate-300">{new Date(anomaly.timestamp).toLocaleTimeString()}</span>
                       </div>
+                      <div className="flex justify-between"><span className="text-slate-400">Files Modified:</span><span className="text-slate-200 font-bold">{anomaly.files_modified?.length || 0}</span></div>
                       {anomaly.warning ? (
                         <div className="mt-2 p-2.5 bg-rose-950/40 border border-rose-500/50 rounded-lg text-rose-300">
                           <p className="font-bold flex items-center gap-1">⚠️ {anomaly.warning}</p>
@@ -459,7 +475,7 @@ function App() {
                         {taskRoutingResult.assigned_model}
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-300 mt-1"><span className="text-slate-400">Rationale:</span> {taskRoutingResult.reason}</p>
+                    <p className="text-[11px] text-slate-300 mt-1"><span className="text-slate-400">Rationale:</span> {taskRoutingResult.reasoning}</p>
                   </div>
                 )}
               </div>
@@ -476,7 +492,7 @@ function App() {
                     </span>
                   </div>
                   <p className="text-xs text-slate-300 mb-3">
-                    Multi-repository mass refactoring tool. Test with dry-run before applying destructive edits.
+                    DESTRUCTIVE when Dry Run is off: multi-repository mass refactoring. Dry Run (default) previews only.
                   </p>
 
                   <form onSubmit={handleGlobalRefactor} className="space-y-2">
@@ -529,12 +545,12 @@ function App() {
                 )}
               </div>
 
-              {/* Card 4: SQLite Database Backups */}
+              {/* Card 4: SQLite State Snapshots */}
               <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col justify-between hover:border-slate-700 transition-colors">
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-base font-semibold text-teal-400 flex items-center gap-2" title="Safely creates snapshot backups of jules.db to prevent data loss.">
-                      Database Backups
+                    <h3 className="text-base font-semibold text-teal-400 flex items-center gap-2" title="Creates a JSON state snapshot of submodule sync state (no database). No restore/delete endpoint exists.">
+                      State Snapshots
                     </h3>
                     <span className="text-[10px] uppercase font-mono px-2 py-0.5 bg-teal-950/80 text-teal-300 border border-teal-800 rounded">
                       State Snapshots
@@ -546,12 +562,12 @@ function App() {
 
                   <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
                     {backups.length === 0 ? (
-                      <p className="text-xs text-slate-500 italic py-2">No database backup snapshots yet.</p>
+                      <p className="text-xs text-slate-500 italic py-2">No state snapshots yet.</p>
                     ) : (
                       backups.slice(0, 4).map((b, idx) => (
                         <div key={idx} className="p-2 bg-slate-950 border border-slate-800 rounded-lg flex items-center justify-between text-[11px] font-mono">
                           <span className="text-slate-300 truncate w-36" title={b.filename}>{b.filename}</span>
-                          <span className="text-slate-500">{Math.round(b.size_bytes / 1024)} KB</span>
+                          <span className="text-slate-500">{Math.round(b.size_bytes / 1024)} KB · {b.created_at ? new Date(b.created_at).toLocaleString() : ''}</span>
                         </div>
                       ))
                     )}
@@ -564,9 +580,9 @@ function App() {
                     onClick={handleCreateBackup}
                     disabled={backupLoading}
                     className="bg-teal-600 hover:bg-teal-500 disabled:opacity-50 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs transition-colors shadow"
-                    title="Creates an instantaneous backup copy of jules.db"
+                    title="Creates a JSON state snapshot of submodule state (no database, no restore endpoint)"
                   >
-                    {backupLoading ? "Backing up..." : "Create Backup"}
+                    {backupLoading ? "Backing up..." : "Create Snapshot"}
                   </button>
                 </div>
               </div>
@@ -575,7 +591,7 @@ function App() {
         )}
 
         {/* SECTION 2: ECOSYSTEM MONITOR & SUBMODULE MANAGEMENT */}
-        {(activeTab === 'all' || activeTab === 'submodules') && (
+        {true && (
           <section className="space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
@@ -605,9 +621,9 @@ function App() {
                 <button
                   onClick={handlePruneSubmodules}
                   className="bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-lg text-slate-200 transition-colors font-medium flex items-center gap-1"
-                  title="Safely cleans up stale or orphaned submodule pointers."
+                  title="Scan only (GET): lists broken submodules without pruning anything."
                 >
-                  Prune Broken
+                  Scan for Broken
                 </button>
                 <button
                   onClick={handleGenerateDashboard}
@@ -647,7 +663,7 @@ function App() {
                         submodules.map((sm, idx) => (
                           <tr key={idx} className="hover:bg-slate-800/50 transition-colors">
                             <td className="px-4 py-2.5 font-medium text-slate-200" title={`Path: ${sm.path}`}>
-                              {sm.path}
+                              {sm.path} <span className="text-slate-500">{(sm.commit || '').slice(0,7)}</span>
                             </td>
                             <td className="px-4 py-2.5">
                               <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${sm.status === 'Synchronized' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-rose-950 text-rose-400 border border-rose-800'}`}>
@@ -671,6 +687,12 @@ function App() {
                 </div>
 
                 {/* Submodule Drift / Conflict Results Panel if triggered */}
+                {pruneReport.length > 0 && (
+                  <div className="mt-4 p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs space-y-1">
+                    <div className="font-bold text-amber-400">Broken-Submodule Scan (scan only):</div>
+                    {pruneReport.map((pr, i) => (<div key={i} className="text-slate-300 text-[11px] font-mono">• {pr.submodule}: {pr.status} — {pr.action}</div>))}
+                  </div>
+                )}
                 {(driftReport.length > 0 || conflicts.length > 0) && (
                   <div className="mt-4 p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs space-y-2">
                     {driftReport.length > 0 && (
@@ -678,8 +700,8 @@ function App() {
                         <div className="font-bold text-amber-400 mb-1">Drift Scan Results:</div>
                         <div className="grid grid-cols-2 gap-2 max-h-24 overflow-y-auto">
                           {driftReport.map((d, i) => (
-                            <div key={i} className="text-slate-300 font-mono text-[11px] truncate">
-                              • {d.submodule}: <span className={d.drift_detected ? "text-rose-400" : "text-emerald-400"}>{d.drift_detected ? "Diverged" : "Up-to-date"}</span>
+                            <div key={i} className="text-slate-300 font-mono text-[11px] truncate" title={`local ${d.local_hash || '?'} remote ${d.remote_hash || '?'}`}>
+                              • {d.submodule}: <span className={d.status === 'DRIFT DETECTED' ? "text-rose-400" : "text-emerald-400"}>{d.status}</span> <span className="text-slate-500">{(d.local_hash || '').slice(0,7)}→{(d.remote_hash || '').slice(0,7)}</span>
                             </div>
                           ))}
                         </div>
@@ -689,7 +711,7 @@ function App() {
                       <div className="pt-2 border-t border-slate-800">
                         <div className="font-bold text-rose-400 mb-1">Conflicts Handled:</div>
                         {conflicts.map((c, i) => (
-                          <div key={i} className="text-slate-300 text-[11px]">• {c.submodule}: {c.action_taken}</div>
+                          <div key={i} className="text-slate-300 text-[11px]">• {c.file}: {(c.blocks?.length || 0)} block(s) — {(c.strategy || []).join('; ')}</div>
                         ))}
                       </div>
                     )}
@@ -709,7 +731,7 @@ function App() {
                     </span>
                   </div>
                   <p className="text-xs text-slate-300 mb-4">
-                    Deploy or auto-generate workflow specs (`.github/workflows/`) for any registered submodule.
+                    Check or auto-generate workflow specs. Deploy to staging/production is simulation-only and will report failure; local is a dry-run.
                   </p>
 
                   <div className="space-y-3">
@@ -769,7 +791,7 @@ function App() {
         )}
 
         {/* SECTION 3: TELEMETRY & SYSTEM OBSERVABILITY */}
-        {(activeTab === 'all' || activeTab === 'telemetry') && (
+        {true && (
           <section className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
@@ -777,7 +799,7 @@ function App() {
                   <span className="w-2 h-2 rounded-full bg-purple-500" />
                   Realtime Telemetry & Observability
                 </h2>
-                <p className="text-xs text-slate-400">Database-backed asynchronous task queues, system audit status, and live Go server logs.</p>
+                <p className="text-xs text-slate-400">In-memory task queue (volatile), system audit status, and recent commit history.</p>
               </div>
 
               <div className="flex gap-2">
@@ -809,7 +831,7 @@ function App() {
               <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-base font-semibold text-purple-400" title="GORM SQLite database task queue providing async background job execution.">
+                    <h3 className="text-base font-semibold text-purple-400" title="In-memory volatile task queue (tasks lost on restart).">
                       Task Queue Telemetry
                     </h3>
                     <span className="text-[10px] font-mono px-2 py-0.5 bg-purple-950 text-purple-300 border border-purple-800 rounded">
@@ -841,7 +863,7 @@ function App() {
                   <div className="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400 max-h-24 overflow-y-auto">
                     <p className="font-bold text-purple-300 mb-1">UI Auditor Highlights:</p>
                     {auditReport.slice(0, 3).map((a, i) => (
-                      <div key={i} className="truncate">• {a.submodule}: Missing {a.missing_ui_elements?.length || 0} UI element(s)</div>
+                      <div key={i} className="truncate" title={a.status}>• {a.submodule}: {a.status} (backend {a.backend_files}, frontend {a.frontend_files})</div>
                     ))}
                   </div>
                 )}
@@ -851,8 +873,8 @@ function App() {
               <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg flex flex-col justify-between">
                 <div>
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-base font-semibold text-blue-400" title="Real-time tail of the Go backend execution logs.">
-                      System Execution Logs
+                    <h3 className="text-base font-semibold text-blue-400" title="Recent git commit history from the backend (not application logs).">
+                      Commit History (git log)
                     </h3>
                     <span className="text-[10px] font-mono px-2 py-0.5 bg-blue-950 text-blue-300 border border-blue-800 rounded">
                       Live Tail
@@ -877,7 +899,7 @@ function App() {
         <div className="flex items-center space-x-4">
           <span className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            Vite SPA + Go Fiber/NetHTTP
+            Vite SPA + Go net/http
           </span>
           <span>Port :8080 (API) / :3006 (Dev)</span>
         </div>

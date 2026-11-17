@@ -17,3 +17,5 @@ __pycache__/
 
 # Runtime state snapshots from /api/system/backup
 backend-go/backups/
+jules-backend.exe
+backend-go/jules.db

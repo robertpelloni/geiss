@@ -1,18 +1,21 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
 	"os/exec"
 	"strings"
+	"sync"
+	"time"
 )
 
 type DriftReport struct {
-	Submodule string `json:"submodule"`
-	Status    string `json:"status"`
-	LocalHash string `json:"local_hash,omitempty"`
+	Submodule  string `json:"submodule"`
+	Status     string `json:"status"`
+	LocalHash  string `json:"local_hash,omitempty"`
 	RemoteHash string `json:"remote_hash,omitempty"`
 }
 
@@ -42,8 +45,10 @@ func checkDrift(repoPath, smPath string) DriftReport {
 		return DriftReport{Submodule: smPath, Status: "Not initialized"}
 	}
 
-	// Fetch latest
-	cmdFetch := exec.Command("git", "fetch", "origin")
+	// Fetch latest (bounded so one hung remote cannot stall the scan)
+	fetchCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	cmdFetch := exec.CommandContext(fetchCtx, "git", "fetch", "origin")
 	cmdFetch.Dir = fullPath
 	_ = cmdFetch.Run()
 
@@ -76,17 +81,17 @@ func checkDrift(repoPath, smPath string) DriftReport {
 
 	if localHash != remoteHash {
 		return DriftReport{
-			Submodule: smPath,
-			Status: "DRIFT DETECTED",
-			LocalHash: localHash,
+			Submodule:  smPath,
+			Status:     "DRIFT DETECTED",
+			LocalHash:  localHash,
 			RemoteHash: remoteHash,
 		}
 	}
 
 	return DriftReport{
-		Submodule: smPath,
-		Status: "In sync",
-		LocalHash: localHash,
+		Submodule:  smPath,
+		Status:     "In sync",
+		LocalHash:  localHash,
 		RemoteHash: remoteHash,
 	}
 }
@@ -100,10 +105,13 @@ func driftDetectionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var reports []DriftReport
-	for _, sm := range submodules {
-		reports = append(reports, checkDrift(repoPath, sm))
+	reports := make([]DriftReport, len(submodules))
+	var wg sync.WaitGroup
+	for i, sm := range submodules {
+		wg.Add(1)
+		go func(i int, sm string) { defer wg.Done(); reports[i] = checkDrift(repoPath, sm) }(i, sm)
 	}
+	wg.Wait()
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(reports)

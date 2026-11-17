@@ -15,3 +15,5 @@ This document tracks granular short-term features, immediate bug fixes, and expl
 - [x] Automate database backups for `jules.db`.
 - [ ] Explore WebSockets for real-time `queue telemetry` instead of HTTP polling.
 - [ ] Set up end-to-end testing for the React application using Playwright or Cypress.
+
+- [x] 1.0.43 synthesis pass (auth/contracts/honesty/shutdown/docs). Remaining: owner decides aios/fwber telemetry commit vs stash; restore/delete for backups not implemented (create/list only).

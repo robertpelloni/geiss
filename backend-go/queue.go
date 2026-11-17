@@ -14,6 +14,8 @@ type Task struct {
 	CreatedAt time.Time
 }
 
+// TaskQueue is in-memory and volatile: tasks are lost on restart and
+// auto-completed by ProcessTasks; it is not a persistent job store.
 type TaskQueue struct {
 	mu    sync.Mutex
 	Tasks []Task

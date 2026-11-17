@@ -7,7 +7,7 @@ This document outlines the procedures for setting up the Jules Autopilot Omni-Wo
 *   Git (latest version)
 *   Go v1.26.0
 *   Node.js v20.20.2
-*   pnpm
+*   Bun (see packageManager in package.json)
 
 ## Local Development Setup
 1.  **Clone the Repository:**
@@ -18,25 +18,25 @@ This document outlines the procedures for setting up the Jules Autopilot Omni-Wo
 2.  **Frontend Setup:**
     Ensure `ignore-scripts=false` is set in your local `.npmrc` file.
     ```bash
-    pnpm install
-    pnpm run dev
+    bun install
+    bun run dev
     ```
 3.  **Backend Setup:**
     ```bash
     cd backend-go
-    go run main.go
+    go run .
     ```
 
 ## Production Build & Run
 1.  **Build Frontend:**
     ```bash
-    pnpm run build
+    bun run build
     ```
     *This generates the static assets in the `dist/` directory.*
 2.  **Build and Run Backend:**
     ```bash
     cd backend-go
-    go build -o jules-backend
+    go build -o jules-backend.exe .
     ./jules-backend
     ```
     *The Go backend serves the API on port 8080 and statically hosts the `../dist` frontend build.*
@@ -45,7 +45,7 @@ This document outlines the procedures for setting up the Jules Autopilot Omni-Wo
 When deploying to Render, the following environment variables are required:
 *   `NODE_VERSION=20.20.2`
 *   `GO_VERSION=1.26.0`
-*   `CGO_ENABLED=1`
+*   `CGO_ENABLED=0` (pure Go, no sqlite)
 *   `NODE_OPTIONS=--max-old-space-size=4096` (Prevents Vite OOM errors during build)
 *   `JULES_API_KEY`
 

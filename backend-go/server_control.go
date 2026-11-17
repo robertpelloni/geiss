@@ -40,13 +40,6 @@ func serverShutdownHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(map[string]string{"message": "shutdown initiated"})
-	// Flush before exiting so the tray/dashboard sees the confirmation.
-	if f, ok := w.(http.Flusher); ok {
-		f.Flush()
-	}
-	go func() {
-		time.Sleep(200 * time.Millisecond)
-		os.Exit(0)
-	}()
+	// Single shared shutdown path (exitFunc seam lives in systray.go).
+	systemShutdownHandler(w, r)
 }
